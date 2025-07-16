@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DRIP.CGI - Premier marketing agency specializing in hyper-realistic CGI ad videos and 3D motion graphics. Experience our stunning visual creations.">
+  <meta name="keywords" content="DRIP.CGI, CGI, 3D motion graphics, VFX, marketing agency, video ads">
+  <meta name="author" content="DRIP.CGI">
+  <title>DRIP.CGI - Hyper-Realistic CGI Ad Experiences</title>
+  <link rel="icon" type="image/png" href="https://via.placeholder.com/32?text=D">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+</head>
+<body class="bg-black text-white font-sans overflow-x-hidden">
+  <!-- Custom Cursor -->
+  <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 py-4 px-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="#hero" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">DRIP.CGI</a>
+      <div class="space-x-4">
+        <a href="#hero" class="text-lg hover:text-red-500 transition-colors">Home</a>
+        <a href="#gallery" class="text-lg hover:text-red-500 transition-colors">Gallery</a>
+        <a href="#contact" class="text-lg hover:text-red-500 transition-colors">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section with Enhanced 3D Background -->
+  <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
+    <div id="three-canvas" class="absolute inset-0"></div>
+    <div class="relative z-10 text-center px-4">
+      <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">DRIP.CGI</h1>
+      <p class="text-xl md:text-3xl mt-4 opacity-80">Pioneering Hyper-Realistic CGI Storytelling</p>
+      <a href="#gallery" class="mt-8 inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Discover Our Work</a>
+    </div>
+  </section>
+
+  <!-- Video Gallery Section with Carousel and Filters -->
+  <section id="gallery" class="py-20 px-4 relative">
+    <div id="gallery-canvas" class="absolute inset-0 z-[-1]"></div>
+    <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Our CGI Creations</h2>
+    <div class="flex justify-center mb-8 space-x-4">
+      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full" data-filter="all">All</button>
+      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full" data-filter="Motion Graphics">Motion Graphics</button>
+      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full" data-filter="VFX">VFX</button>
+      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full" data-filter="3D Ads">3D Ads</button>
+    </div>
+    <div id="video-carousel" class="relative max-w-6xl mx-auto overflow-hidden">
+      <div id="carousel-inner" class="flex transition-transform duration-500"></div>
+      <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700">←</button>
+      <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700">→</button>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-20 px-4 relative h-screen flex flex-col items-center justify-center">
+    <div id="contact-canvas" class="absolute inset-0 z-[-1]"></div>
+    <h2 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Create with Us</h2>
+    <a href="#" id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Get Started</a>
+  </section>
+
+  <!-- Contact Popup Modal -->
+  <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
+    <div class="relative bg-gray-900 p-6 rounded-lg max-w-md w-full text-center">
+      <button onclick="closeContactModal()" class="absolute top-2 right-2 text-white text-2xl hover:text-red-500 transition-colors">×</button>
+      <h3 class="text-2xl font-bold mb-4">Connect with Us</h3>
+      <div class="flex justify-center items-center space-x-4 mb-4">
+        <i class="fab fa-instagram text-2xl text-pink-500"></i>
+        <a href="https://www.instagram.com/drip_cgi/" target="_blank" class="text-blue-400 hover:text-blue-300">drip.cgi</a>
+      </div>
+      <div class="flex justify-center items-center space-x-4">
+        <i class="fas fa-envelope text-2xl text-green-500"></i>
+        <a href="mailto:beingahsan12@gmail.com" class="text-blue-400 hover:text-blue-300">beingahsan12@gmail.com</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Video Data (Replace with your video URLs)
+    const videos = [
+      { src: '1.mp4', title: 'Story Telling', category: 'Motion Graphics' },
+      { src: '3.mp4', title: 'Dynamic Waves', category: 'Motion Graphics' },
+      { src: '7.mp4', title: 'Fluid Motion', category: 'Motion Graphics' },
+      { src: '4.mp4', title: 'Our Agency', category: 'VFX' },
+      { src: '5.mp4', title: 'Explosive Effects', category: 'VFX' },
+      { src: '6.mp4', title: 'Digital Storm', category: 'VFX' },
+      { src: '7.mp4', title: 'Advertisement', category: '3D Ads' },
+      { src: '8.mp4', title: 'Product Shine', category: '3D Ads' },
+      { src: '9.mp4', title: '3D Showcase', category: '3D Ads' }
+    ];
+
+    // Three.js 3D Backgrounds
+    // Hero Scene
+    const heroScene = new THREE.Scene();
+    const heroCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const heroRenderer = new THREE.WebGLRenderer({ alpha: true });
+    heroRenderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('three-canvas').appendChild(heroRenderer.domElement);
+
+    const particleCount = 15000;
+    const particlesGeometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(particleCount * 3);
+    const velocityArray = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      posArray[i] = (Math.random() - 0.5) * 1000;
+      posArray[i + 1] = (Math.random() - 0.5) * 1000;
+      posArray[i + 2] = (Math.random() - 0.5) * 1000;
+      velocityArray[i] = (Math.random() - 0.5) * 0.5;
+      velocityArray[i + 1] = (Math.random() - 0.5) * 0.5;
+      velocityArray[i + 2] = (Math.random() - 0.5) * 0.5;
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 2.5,
+      color: 0xff0055,
+      transparent: true,
+      opacity: 0.6,
+      blending: THREE.AdditiveBlending
+    });
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    heroScene.add(particlesMesh);
+
+    const logoGeometry = new THREE.TorusKnotGeometry(20, 3, 100, 16);
+    const logoMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(0xff0055) }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor;
+        varying vec2 vUv;
+        void main() {
+          float glow = sin(uTime * 2.0 + vUv.y * 5.0) * 0.5 + 0.5;
+          float pulse = cos(uTime * 1.5) * 0.2 + 0.8;
+          gl_FragColor = vec4(uColor * glow * pulse, glow * 0.7);
+        }
+      `,
+      transparent: true,
+      wireframe: true
+    });
+    const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
+    heroScene.add(logoMesh);
+
+    const pointLight = new THREE.PointLight(0xff0055, 1.5, 100);
+    pointLight.position.set(50, 50, 50);
+    heroScene.add(pointLight);
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+    heroScene.add(ambientLight);
+
+    heroCamera.position.z = 150;
+
+    // Gallery Scene
+    const galleryScene = new THREE.Scene();
+    const galleryCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const galleryRenderer = new THREE.WebGLRenderer({ alpha: true });
+    galleryRenderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('gallery-canvas').appendChild(galleryRenderer.domElement);
+
+    const galleryParticleCount = 5000;
+    const galleryParticlesGeometry = new THREE.BufferGeometry();
+    const galleryPosArray = new Float32Array(galleryParticleCount * 3);
+    const galleryVelocityArray = new Float32Array(galleryParticleCount * 3);
+    for (let i = 0; i < galleryParticleCount * 3; i += 3) {
+      galleryPosArray[i] = (Math.random() - 0.5) * 500;
+      galleryPosArray[i + 1] = (Math.random() - 0.5) * 500;
+      galleryPosArray[i + 2] = (Math.random() - 0.5) * 500;
+      galleryVelocityArray[i] = (Math.random() - 0.5) * 0.3;
+      galleryVelocityArray[i + 1] = (Math.random() - 0.5) * 0.3;
+      galleryVelocityArray[i + 2] = (Math.random() - 0.5) * 0.3;
+    }
+    galleryParticlesGeometry.setAttribute('position', new THREE.BufferAttribute(galleryPosArray, 3));
+    const galleryParticlesMaterial = new THREE.PointsMaterial({
+      size: 2,
+      color: 0xff00aa,
+      transparent: true,
+      opacity: 0.5,
+      blending: THREE.AdditiveBlending
+    });
+    const galleryParticlesMesh = new THREE.Points(galleryParticlesGeometry, galleryParticlesMaterial);
+    galleryScene.add(galleryParticlesMesh);
+
+    const galleryLogoGeometry = new THREE.TorusKnotGeometry(10, 2, 80, 12);
+    const galleryLogoMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(0xff5555) }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor;
+        varying vec2 vUv;
+        void main() {
+          float glow = sin(uTime * 1.5 + vUv.y * 4.0) * 0.4 + 0.6;
+          float pulse = cos(uTime * 1.0) * 0.1 + 0.9;
+          gl_FragColor = vec4(uColor * glow * pulse, glow * 0.6);
+        }
+      `,
+      transparent: true,
+      wireframe: true
+    });
+    const galleryLogoMesh = new THREE.Mesh(galleryLogoGeometry, galleryLogoMaterial);
+    galleryScene.add(galleryLogoMesh);
+
+    const galleryPointLight = new THREE.PointLight(0xff5555, 1, 50);
+    galleryPointLight.position.set(30, 30, 30);
+    galleryScene.add(galleryPointLight);
+    const galleryAmbientLight = new THREE.AmbientLight(0x202020, 0.3);
+    galleryScene.add(galleryAmbientLight);
+
+    galleryCamera.position.z = 100;
+
+    // Contact Scene
+    const contactScene = new THREE.Scene();
+    const contactCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const contactRenderer = new THREE.WebGLRenderer({ alpha: true });
+    contactRenderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('contact-canvas').appendChild(contactRenderer.domElement);
+
+    const contactParticleCount = 5000;
+    const contactParticlesGeometry = new THREE.BufferGeometry();
+    const contactPosArray = new Float32Array(contactParticleCount * 3);
+    const contactVelocityArray = new Float32Array(contactParticleCount * 3);
+    for (let i = 0; i < contactParticleCount * 3; i += 3) {
+      contactPosArray[i] = (Math.random() - 0.5) * 500;
+      contactPosArray[i + 1] = (Math.random() - 0.5) * 500;
+      contactPosArray[i + 2] = (Math.random() - 0.5) * 500;
+      contactVelocityArray[i] = (Math.random() - 0.5) * 0.2;
+      contactVelocityArray[i + 1] = (Math.random() - 0.5) * 0.2;
+      contactVelocityArray[i + 2] = (Math.random() - 0.5) * 0.2;
+    }
+    contactParticlesGeometry.setAttribute('position', new THREE.BufferAttribute(contactPosArray, 3));
+    const contactParticlesMaterial = new THREE.PointsMaterial({
+      size: 2,
+      color: 0x00aaff,
+      transparent: true,
+      opacity: 0.4,
+      blending: THREE.AdditiveBlending
+    });
+    const contactParticlesMesh = new THREE.Points(contactParticlesGeometry, contactParticlesMaterial);
+    contactScene.add(contactParticlesMesh);
+
+    const contactLogoGeometry = new THREE.TorusKnotGeometry(10, 2, 80, 12);
+    const contactLogoMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(0x5500ff) }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor;
+        varying vec2 vUv;
+        void main() {
+          float glow = sin(uTime * 1.0 + vUv.y * 3.0) * 0.3 + 0.7;
+          float pulse = cos(uTime * 0.8) * 0.1 + 0.9;
+          gl_FragColor = vec4(uColor * glow * pulse, glow * 0.5);
+        }
+      `,
+      transparent: true,
+      wireframe: true
+    });
+    const contactLogoMesh = new THREE.Mesh(contactLogoGeometry, contactLogoMaterial);
+    contactScene.add(contactLogoMesh);
+
+    const contactPointLight = new THREE.PointLight(0x5500ff, 0.8, 50);
+    contactPointLight.position.set(20, 20, 20);
+    contactScene.add(contactPointLight);
+    const contactAmbientLight = new THREE.AmbientLight(0x101010, 0.2);
+    contactScene.add(contactAmbientLight);
+
+    contactCamera.position.z = 100;
+
+    // Animation Loop
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.05;
+
+      // Hero Animation
+      logoMaterial.uniforms.uTime.value = time;
+      particlesMesh.rotation.y += 0.001;
+      logoMesh.rotation.x += 0.002;
+      logoMesh.rotation.y += 0.003;
+      const heroPositions = particlesGeometry.attributes.position.array;
+      for (let i = 0; i < particleCount * 3; i += 3) {
+        heroPositions[i] += velocityArray[i];
+        heroPositions[i + 1] += velocityArray[i + 1];
+        heroPositions[i + 2] += velocityArray[i + 2];
+        if (Math.abs(heroPositions[i]) > 500) velocityArray[i] *= -1;
+        if (Math.abs(heroPositions[i + 1]) > 500) velocityArray[i + 1] *= -1;
+        if (Math.abs(heroPositions[i + 2]) > 500) velocityArray[i + 2] *= -1;
+      }
+      particlesGeometry.attributes.position.needsUpdate = true;
+      heroRenderer.render(heroScene, heroCamera);
+
+      // Gallery Animation
+      galleryLogoMaterial.uniforms.uTime.value = time;
+      galleryParticlesMesh.rotation.y += 0.0008;
+      galleryLogoMesh.rotation.x += 0.0015;
+      galleryLogoMesh.rotation.y += 0.002;
+      const galleryPositions = galleryParticlesGeometry.attributes.position.array;
+      for (let i = 0; i < galleryParticleCount * 3; i += 3) {
+        galleryPositions[i] += galleryVelocityArray[i];
+        galleryPositions[i + 1] += galleryVelocityArray[i + 1];
+        galleryPositions[i + 2] += galleryVelocityArray[i + 2];
+        if (Math.abs(galleryPositions[i]) > 250) galleryVelocityArray[i] *= -1;
+        if (Math.abs(galleryPositions[i + 1]) > 250) galleryVelocityArray[i + 1] *= -1;
+        if (Math.abs(galleryPositions[i + 2]) > 250) galleryVelocityArray[i + 2] *= -1;
+      }
+      galleryParticlesGeometry.attributes.position.needsUpdate = true;
+      galleryRenderer.render(galleryScene, galleryCamera);
+
+      // Contact Animation
+      contactLogoMaterial.uniforms.uTime.value = time;
+      contactParticlesMesh.rotation.y += 0.0006;
+      contactLogoMesh.rotation.x += 0.001;
+      contactLogoMesh.rotation.y += 0.0015;
+      const contactPositions = contactParticlesGeometry.attributes.position.array;
+      for (let i = 0; i < contactParticleCount * 3; i += 3) {
+        contactPositions[i] += contactVelocityArray[i];
+        contactPositions[i + 1] += contactVelocityArray[i + 1];
+        contactPositions[i + 2] += contactVelocityArray[i + 2];
+        if (Math.abs(contactPositions[i]) > 250) contactVelocityArray[i] *= -1;
+        if (Math.abs(contactPositions[i + 1]) > 250) contactVelocityArray[i + 1] *= -1;
+        if (Math.abs(contactPositions[i + 2]) > 250) contactVelocityArray[i + 2] *= -1;
+      }
+      contactParticlesGeometry.attributes.position.needsUpdate = true;
+      contactRenderer.render(contactScene, contactCamera);
+    }
+    animate();
+
+    // Window Resize
+    window.addEventListener('resize', () => {
+      heroCamera.aspect = window.innerWidth / window.innerHeight;
+      heroCamera.updateProjectionMatrix();
+      heroRenderer.setSize(window.innerWidth, window.innerHeight);
+
+      galleryCamera.aspect = window.innerWidth / window.innerHeight;
+      galleryCamera.updateProjectionMatrix();
+      galleryRenderer.setSize(window.innerWidth, window.innerHeight);
+
+      contactCamera.aspect = window.innerWidth / window.innerHeight;
+      contactCamera.updateProjectionMatrix();
+      contactRenderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Custom Cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', (e) => {
+      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+    });
+    document.querySelectorAll('.group, .filter-btn, a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => gsap.to(cursor, { scale: 1.5, opacity: 0.8 }));
+      el.addEventListener('mouseleave', () => gsap.to(cursor, { scale: 1, opacity: 0.5 }));
+    });
+
+    // GSAP Animations
+    gsap.from("#hero h1", { opacity: 0, y: 60, duration: 1.2, ease: "power2.out" });
+    gsap.from("#hero p", { opacity: 0, y: 60, duration: 1.2, delay: 0.2, ease: "power2.out" });
+    gsap.from("#hero a", { opacity: 0, y: 60, duration: 1.2, delay: 0.4, ease: "power2.out" });
+    gsap.from("#gallery h2", { opacity: 0, y: 40, duration: 1, scrollTrigger: { trigger: "#gallery", start: "top 80%" } });
+
+    // Video Carousel
+    const carouselInner = document.getElementById('carousel-inner');
+    let currentIndex = 0;
+
+    function renderCarousel(filter = 'all') {
+      carouselInner.innerHTML = '';
+      const filteredVideos = filter === 'all' ? videos : videos.filter(v => v.category === filter);
+      if (filteredVideos.length === 0) {
+        carouselInner.innerHTML = '<p class="text-center text-gray-500">No videos found for this category.</p>';
+        console.warn('No videos match the filter:', filter);
+        return;
+      }
+      filteredVideos.forEach((video, index) => {
+        const card = document.createElement('div');
+        card.className = 'group w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer';
+        card.innerHTML = `
+          <div class="relative overflow-hidden rounded-lg">
+            <video class="w-full h-56 object-cover" muted playsinline autoplay loop>
+              <source src="${video.src}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <p class="text-white text-lg font-semibold">${video.title}</p>
+            </div>
+          </div>
+        `;
+        carouselInner.appendChild(card);
+        // Check if video source is valid
+        const videoElement = card.querySelector('video');
+        videoElement.addEventListener('error', () => {
+          console.error(`Failed to load video: ${video.src}`);
+          card.innerHTML = `<div class="w-full h-56 bg-gray-800 flex items-center justify-center rounded-lg"><p class="text-red-500">Video failed to load</p></div>`;
+        });
+      });
+      console.log(`Rendered ${filteredVideos.length} unique videos for filter: ${filter}`);
+      currentIndex = 0; // Reset index on render
+      carouselInner.style.transform = `translateX(0)`; // Reset position
+    }
+    renderCarousel();
+
+    // Carousel Navigation
+    document.getElementById('next-btn').addEventListener('click', () => {
+      const filteredVideos = videos.filter(v => document.querySelector('.filter-btn.bg-red-600').dataset.filter === 'all' ? true : v.category === document.querySelector('.filter-btn.bg-red-600').dataset.filter);
+      const maxIndex = Math.ceil(filteredVideos.length / 3) - 1;
+      currentIndex = (currentIndex + 1) > maxIndex ? 0 : currentIndex + 1;
+      carouselInner.style.transform = `translateX(-${currentIndex * 33.33}%)`;
+      console.log(`Navigated to index ${currentIndex}, max: ${maxIndex}`);
+    });
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      const filteredVideos = videos.filter(v => document.querySelector('.filter-btn.bg-red-600').dataset.filter === 'all' ? true : v.category === document.querySelector('.filter-btn.bg-red-600').dataset.filter);
+      const maxIndex = Math.ceil(filteredVideos.length / 3) - 1;
+      currentIndex = (currentIndex - 1) < 0 ? maxIndex : currentIndex - 1;
+      carouselInner.style.transform = `translateX(-${currentIndex * 33.33}%)`;
+      console.log(`Navigated to index ${currentIndex}, max: ${maxIndex}`);
+    });
+
+    // Video Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-red-600'));
+        btn.classList.add('bg-red-600');
+        renderCarousel(btn.dataset.filter);
+      });
+    });
+
+    // Contact Popup Functionality
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    const contactModal = document.getElementById('contactModal');
+
+    getStartedBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      contactModal.classList.remove('hidden');
+      gsap.from(contactModal, { opacity: 0, scale: 0.8, duration: 0.5, ease: "power2.out" });
+    });
+
+    function closeContactModal() {
+      contactModal.classList.add('hidden');
+      gsap.to(contactModal, { opacity: 0, scale: 0.8, duration: 0.3, ease: "power2.out" });
+    }
+  </script>
+</body>
+</html>
