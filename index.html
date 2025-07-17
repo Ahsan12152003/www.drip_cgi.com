@@ -16,6 +16,23 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
   <style>
+    /* CSS Reset for consistent browser rendering */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-size: 100%;
+      line-height: 1.15;
+    }
+    html {
+      font-size: 16px; /* Base font size for consistency */
+    }
+    body {
+      font-family: sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
     /* Improved animation performance with will-change */
     .filter-btn.active {
       background: linear-gradient(to right, #dc2626, #ec4899);
@@ -73,64 +90,60 @@
 </head>
 <body class="bg-black text-white font-sans overflow-x-hidden">
   <!-- Custom Cursor -->
-  <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen z-50 transform-gpu"></div>
+  <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen"></div>
 
   <!-- Navigation Bar -->
   <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 py-4 px-4 backdrop-blur-sm transform-gpu">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="#hero" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">DRIP.CGI</a>
-      <div class="flex space-x-8">
-        <a href="#hero" class="nav-link text-lg hover:text-red-500 transition-colors duration-300 transform-gpu">Home</a>
-        <a href="#gallery" class="nav-link text-lg hover:text-red-500 transition-colors duration-300 transform-gpu">Gallery</a>
-        <a href="#contact" class="nav-link text-lg hover:text-red-500 transition-colors duration-300 transform-gpu">Contact</a>
+      <div class="space-x-4">
+        <a href="#hero" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu">Home</a>
+        <a href="#gallery" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu">Gallery</a>
+        <a href="#contact" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu">Contact</a>
       </div>
     </div>
   </nav>
 
   <!-- Hero Section with Enhanced 3D Background -->
-  <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden transform-gpu">
-    <canvas id="three-canvas"></canvas>
-    <div class="relative z-10 text-center px-4 transform-gpu">
-      <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">DRIP.CGI</h1>
-      <p class="text-xl md:text-3xl mt-4 opacity-80 transform-gpu">Pioneering Hyper-Realistic CGI Storytelling</p>
-      <a href="#gallery" class="mt-8 inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all duration-300 transform hover:scale-105 transform-gpu">Discover Our Work</a>
+  <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
+    <canvas id="three-canvas" class="absolute inset-0"></canvas>
+    <div class="relative z-10 text-center px-4">
+      <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">DRIP.CGI</h1>
+      <p class="text-xl md:text-3xl mt-4 opacity-80">Pioneering Hyper-Realistic CGI Storytelling</p>
+      <a href="#gallery" class="mt-8 inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Discover Our Work</a>
     </div>
   </section>
 
   <!-- Video Gallery Section with Carousel and Filters -->
-  <section id="gallery" class="py-20 px-4 relative transform-gpu">
-    <canvas id="gallery-canvas"></canvas>
+  <section id="gallery" class="py-20 px-4 relative">
+    <canvas id="gallery-canvas" class="absolute inset-0 z-[-1]"></canvas>
     <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Our CGI Creations</h2>
-    <div class="flex justify-center mb-8 space-x-4 transform-gpu">
-      <button class="filter-btn active bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 transform-gpu" data-filter="all">All</button>
-      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 transform-gpu" data-filter="Motion Graphics">Motion Graphics</button>
-      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 transform-gpu" data-filter="VFX">VFX</button>
-      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 transform-gpu" data-filter="3D Ads">3D Ads</button>
+    <div class="flex justify-center mb-8 space-x-4">
+      <button class="filter-btn active bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu" data-filter="all">All</button>
+      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu" data-filter="Motion Graphics">Motion Graphics</button>
+      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu" data-filter="VFX">VFX</button>
+      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu" data-filter="3D Ads">3D Ads</button>
     </div>
-    <div id="video-carousel" class="relative max-w-6xl mx-auto overflow-hidden transform-gpu">
-      <div id="carousel-inner" class="flex transition-transform duration-500 ease-out transform-gpu"></div>
-      <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-3 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-3 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu">
-        <i class="fas fa-chevron-right"></i>
-      </button>
+    <div id="video-carousel" class="relative max-w-6xl mx-auto overflow-hidden">
+      <div id="carousel-inner" class="flex transition-transform duration-500"></div>
+      <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu">←</button>
+      <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu">→</button>
     </div>
   </section>
 
   <!-- Contact Section -->
-  <section id="contact" class="py-20 px-4 relative h-screen flex flex-col items-center justify-center transform-gpu">
-    <canvas id="contact-canvas"></canvas>
+  <section id="contact" class="py-20 px-4 relative h-screen flex flex-col items-center justify-center">
+    <canvas id="contact-canvas" class="absolute inset-0 z-[-1]"></canvas>
     <h2 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Create with Us</h2>
-    <a href="#" id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all duration-300 transform hover:scale-105 transform-gpu">Get Started</a>
+    <a href="#" id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Get Started</a>
   </section>
 
   <!-- Contact Popup Modal -->
-  <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50 transform-gpu">
-    <div class="relative bg-gray-900 p-8 rounded-lg max-w-md w-full mx-4 text-center border border-gray-800 transform-gpu">
-      <button onclick="closeContactModal()" class="absolute top-4 right-4 text-white text-2xl hover:text-red-500 transition-colors duration-300 transform-gpu">×</button>
-      <h3 class="text-2xl font-bold mb-6 transform-gpu">Connect with Us</h3>
-      <div class="flex justify-center items-center space-x-4 mb-6 transform-gpu">
+  <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
+    <div class="relative bg-gray-900 p-6 rounded-lg max-w-md w-full text-center border border-gray-800">
+      <button onclick="closeContactModal()" class="absolute top-2 right-2 text-white text-2xl hover:text-red-500 transition-colors duration-300">×</button>
+      <h3 class="text-2xl font-bold mb-4 transform-gpu">Connect with Us</h3>
+      <div class="flex justify-center items-center space-x-4 mb-4 transform-gpu">
         <i class="fab fa-instagram text-2xl text-pink-500 transform-gpu"></i>
         <a href="https://instagram.com/drip_cgi" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">drip.cgi</a>
       </div>
@@ -430,10 +443,12 @@
     let currentIndex = 0;
     let carouselItems = [];
     let filteredVideos = [];
+    let activeFilter = 'all';
 
     function renderCarousel(filter = 'all') {
       carouselInner.innerHTML = '';
       carouselItems = [];
+      activeFilter = filter;
       filteredVideos = filter === 'all' ? [...videos] : videos.filter(v => v.category === filter);
       
       if (filteredVideos.length === 0) {
@@ -444,15 +459,15 @@
       // Create video cards
       filteredVideos.forEach((video, index) => {
         const card = document.createElement('div');
-        card.className = 'group w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer transform-gpu';
+        card.className = 'group w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer';
         card.innerHTML = `
-          <div class="relative overflow-hidden rounded-lg transform-gpu">
+          <div class="relative overflow-hidden rounded-lg">
             <video class="w-full h-56 object-cover" muted playsinline loop preload="metadata">
               <source src="${video.src}" type="video/mp4">
               Your browser does not support the video tag.
             </video>
-            <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform-gpu">
-              <p class="text-white text-lg font-semibold transform-gpu">${video.title}</p>
+            <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <p class="text-white text-lg font-semibold">${video.title}</p>
             </div>
           </div>
         `;
@@ -484,8 +499,9 @@
     }
 
     function updateCarouselPosition() {
+      if (carouselItems.length === 0) return;
       gsap.to(carouselInner, {
-        x: -currentIndex * carouselItems[0]?.offsetWidth || 0,
+        x: -currentIndex * carouselItems[0].offsetWidth,
         duration: 0.5,
         ease: "power2.out"
       });
@@ -493,18 +509,14 @@
 
     // Carousel Navigation
     document.getElementById('next-btn').addEventListener('click', () => {
-      const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-      filteredVideos = activeFilter === 'all' ? [...videos] : videos.filter(v => v.category === activeFilter);
-      
-      currentIndex = (currentIndex + 1) % Math.ceil(filteredVideos.length / 3);
+      if (filteredVideos.length === 0) return;
+      currentIndex = (currentIndex + 1) % Math.ceil(filteredVideos.length);
       updateCarouselPosition();
     });
 
     document.getElementById('prev-btn').addEventListener('click', () => {
-      const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-      filteredVideos = activeFilter === 'all' ? [...videos] : videos.filter(v => v.category === activeFilter);
-      
-      currentIndex = (currentIndex - 1 + Math.ceil(filteredVideos.length / 3)) % Math.ceil(filteredVideos.length / 3);
+      if (filteredVideos.length === 0) return;
+      currentIndex = (currentIndex - 1 + Math.ceil(filteredVideos.length)) % Math.ceil(filteredVideos.length);
       updateCarouselPosition();
     });
 
