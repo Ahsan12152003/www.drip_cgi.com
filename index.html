@@ -7,16 +7,13 @@
   <meta name="keywords" content="DRIP.CGI, CGI, 3D motion graphics, VFX, marketing agency, video ads">
   <meta name="author" content="DRIP.CGI">
   <title>DRIP.CGI - Hyper-Realistic CGI Ad Experiences</title>
-  <!-- Using inline SVG as favicon to avoid external request -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23ec4899'>D</text></svg>">
-  <!-- Using Tailwind via PostCSS in production would be better -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
   <style>
-    /* CSS Reset for consistent browser rendering */
     * {
       margin: 0;
       padding: 0;
@@ -25,18 +22,16 @@
       line-height: 1.15;
     }
     html {
-      font-size: 16px; /* Base font size for consistency */
+      font-size: 16px;
     }
     body {
       font-family: sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
-    
-    /* Improved animation performance with will-change */
     .filter-btn.active {
       background: linear-gradient(to right, #dc2626, #ec4899);
-      will-change: transform, background;
+      will-change: background;
     }
     .nav-link {
       position: relative;
@@ -55,13 +50,9 @@
     .nav-link:hover::after {
       width: 100%;
     }
-    
-    /* Smoother transitions */
     * {
       scroll-behavior: smooth;
     }
-    
-    /* Optimized 3D canvas */
     canvas {
       display: block;
       position: fixed;
@@ -71,13 +62,9 @@
       width: 100%;
       height: 100%;
     }
-    
-    /* Hardware accelerated animations */
     .transform-gpu {
       transform: translate3d(0, 0, 0);
     }
-    
-    /* Reduced motion preference */
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0.01ms !important;
@@ -86,13 +73,16 @@
         scroll-behavior: auto !important;
       }
     }
+    /* Optimize video rendering */
+    video {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 <body class="bg-black text-white font-sans overflow-x-hidden">
-  <!-- Custom Cursor -->
   <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen"></div>
-
-  <!-- Navigation Bar -->
   <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 py-4 px-4 backdrop-blur-sm transform-gpu">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="#hero" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">DRIP.CGI</a>
@@ -103,8 +93,6 @@
       </div>
     </div>
   </nav>
-
-  <!-- Hero Section with Enhanced 3D Background -->
   <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
     <canvas id="three-canvas" class="absolute inset-0"></canvas>
     <div class="relative z-10 text-center px-4">
@@ -113,8 +101,6 @@
       <a href="#gallery" class="mt-8 inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Discover Our Work</a>
     </div>
   </section>
-
-  <!-- Video Gallery Section with Carousel and Filters -->
   <section id="gallery" class="py-20 px-4 relative">
     <canvas id="gallery-canvas" class="absolute inset-0 z-[-1]"></canvas>
     <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Our CGI Creations</h2>
@@ -130,15 +116,11 @@
       <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu">→</button>
     </div>
   </section>
-
-  <!-- Contact Section -->
   <section id="contact" class="py-20 px-4 relative h-screen flex flex-col items-center justify-center">
     <canvas id="contact-canvas" class="absolute inset-0 z-[-1]"></canvas>
     <h2 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Create with Us</h2>
     <a href="#" id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Get Started</a>
   </section>
-
-  <!-- Contact Popup Modal -->
   <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
     <div class="relative bg-gray-900 p-6 rounded-lg max-w-md w-full text-center border border-gray-800">
       <button onclick="closeContactModal()" class="absolute top-2 right-2 text-white text-2xl hover:text-red-500 transition-colors duration-300">×</button>
@@ -153,19 +135,18 @@
       </div>
     </div>
   </div>
-
   <script>
-    // Video Data (Replace with your video URLs)
+    // Video Data (Replace with your optimized WebM video URLs and poster images)
     const videos = [
-      { src: '1.mp4', title: 'Story Telling', category: 'Motion Graphics' },
-      { src: '3.mp4', title: 'Dynamic Waves', category: 'Motion Graphics' },
-      { src: '7.mp4', title: 'Fluid Motion', category: 'Motion Graphics' },
-      { src: '4.mp4', title: 'Our Agency', category: 'VFX' },
-      { src: '5.mp4', title: 'Explosive Effects', category: 'VFX' },
-      { src: '6.mp4', title: 'Digital Storm', category: 'VFX' },
-      { src: '7.mp4', title: 'Advertisement', category: '3D Ads' },
-      { src: '8.mp4', title: 'Product Shine', category: '3D Ads' },
-      { src: '9.mp4', title: '3D Showcase', category: '3D Ads' }
+      { src: '1.mp4', poster: '1-poster.jpg', title: 'Story Telling', category: 'Motion Graphics' },
+      { src: '3.mp4', poster: '3-poster.jpg', title: 'Dynamic Waves', category: 'Motion Graphics' },
+      { src: '7.mp4', poster: '7-poster.jpg', title: 'Fluid Motion', category: 'Motion Graphics' },
+      { src: '4.mp4', poster: '4-poster.jpg', title: 'Our Agency', category: 'VFX' },
+      { src: '5.mp4', poster: '5-poster.jpg', title: 'Explosive Effects', category: 'VFX' },
+      { src: '6.mp4', poster: '6-poster.jpg', title: 'Digital Storm', category: 'VFX' },
+      { src: '7.mp4', poster: '7-ad-poster.jpg', title: 'Advertisement', category: '3D Ads' },
+      { src: '8.mp4', poster: '8-poster.jpg', title: 'Product Shine', category: '3D Ads' },
+      { src: '9.mp4', poster: '9-poster.jpg', title: '3D Showcase', category: '3D Ads' }
     ];
 
     // Initialize Three.js scenes with performance optimizations
@@ -177,7 +158,7 @@
         alpha: true,
         powerPreference: "high-performance"
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Lower pixel ratio for performance
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.outputEncoding = THREE.sRGBEncoding;
       
@@ -199,144 +180,107 @@
     const { scene: contactScene, camera: contactCamera, renderer: contactRenderer } = initScene('contact-canvas');
     contactCamera.position.z = 100;
 
-    // Common particle system setup with performance optimizations
+    // Optimized particle system with instancing
     function createParticles(scene, count, color, size, speed) {
-      const particlesGeometry = new THREE.BufferGeometry();
+      const geometry = new THREE.BufferGeometry();
       const positions = new Float32Array(count * 3);
       const velocities = new Float32Array(count * 3);
-      const sizes = new Float32Array(count);
       
       for (let i = 0; i < count; i++) {
         const i3 = i * 3;
-        positions[i3] = (Math.random() - 0.5) * 1000;
-        positions[i3 + 1] = (Math.random() - 0.5) * 1000;
-        positions[i3 + 2] = (Math.random() - 0.5) * 1000;
-        
+        positions[i3] = (Math.random() - 0.5) * 800;
+        positions[i3 + 1] = (Math.random() - 0.5) * 800;
+        positions[i3 + 2] = (Math.random() - 0.5) * 800;
         velocities[i3] = (Math.random() - 0.5) * speed;
         velocities[i3 + 1] = (Math.random() - 0.5) * speed;
         velocities[i3 + 2] = (Math.random() - 0.5) * speed;
-        
-        sizes[i] = size * (0.5 + Math.random() * 0.5);
       }
       
-      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      particlesGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
-      particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
       
-      const particlesMaterial = new THREE.PointsMaterial({
+      const material = new THREE.PointsMaterial({
         size: size,
         color: new THREE.Color(color),
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.5,
         blending: THREE.AdditiveBlending,
         sizeAttenuation: true
       });
       
-      const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+      const particles = new THREE.Points(geometry, material);
       scene.add(particles);
       
-      return { particles, particlesGeometry, velocities };
+      return { particles, geometry, velocities };
     }
 
-    // Create particles for each scene
-    const heroParticles = createParticles(heroScene, 15000, 0xff0055, 2.5, 0.5);
-    const galleryParticles = createParticles(galleryScene, 5000, 0xff00aa, 2, 0.3);
-    const contactParticles = createParticles(contactScene, 5000, 0x00aaff, 2, 0.2);
+    // Reduced particle counts
+    const heroParticles = createParticles(heroScene, 5000, 0xff0055, 2, 0.4);
+    const galleryParticles = createParticles(galleryScene, 2000, 0xff00aa, 1.5, 0.2);
+    const contactParticles = createParticles(contactScene, 2000, 0x00aaff, 1.5, 0.15);
 
-    // Common torus knot setup
+    // Simplified torus knot
     function createTorusKnot(scene, color) {
-      const geometry = new THREE.TorusKnotGeometry(20, 3, 100, 16);
-      const material = new THREE.ShaderMaterial({
-        uniforms: {
-          uTime: { value: 0 },
-          uColor: { value: new THREE.Color(color) }
-        },
-        vertexShader: `
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform float uTime;
-          uniform vec3 uColor;
-          varying vec2 vUv;
-          void main() {
-            float glow = sin(uTime * 2.0 + vUv.y * 5.0) * 0.5 + 0.5;
-            float pulse = cos(uTime * 1.5) * 0.2 + 0.8;
-            gl_FragColor = vec4(uColor * glow * pulse, glow * 0.7);
-          }
-        `,
+      const geometry = new THREE.TorusKnotGeometry(20, 3, 80, 12); // Reduced segments
+      const material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(color),
         transparent: true,
+        opacity: 0.6,
         wireframe: true
       });
       
       const mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
       
-      return { mesh, material };
+      return { mesh };
     }
 
-    // Create torus knots for each scene
     const heroTorus = createTorusKnot(heroScene, 0xff0055);
     const galleryTorus = createTorusKnot(galleryScene, 0xff5555);
     const contactTorus = createTorusKnot(contactScene, 0x5500ff);
 
-    // Add lights to scenes
+    // Simplified lighting
     function addLights(scene, color, intensity) {
       const pointLight = new THREE.PointLight(color, intensity, 100);
       pointLight.position.set(50, 50, 50);
       scene.add(pointLight);
-      
-      const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
-      scene.add(ambientLight);
     }
 
-    addLights(heroScene, 0xff0055, 1.5);
-    addLights(galleryScene, 0xff5555, 1);
-    addLights(contactScene, 0x5500ff, 0.8);
+    addLights(heroScene, 0xff0055, 1);
+    addLights(galleryScene, 0xff5555, 0.8);
+    addLights(contactScene, 0x5500ff, 0.6);
 
-    // Optimized animation loop with requestAnimationFrame
+    // Optimized animation loop
     let lastTime = 0;
-    const frameRate = 1000 / 60; // Target 60fps
+    const frameRate = 1000 / 60;
     
     function animate(currentTime) {
       requestAnimationFrame(animate);
       
-      // Throttle updates to maintain performance
       const deltaTime = currentTime - lastTime;
       if (deltaTime < frameRate) return;
       lastTime = currentTime - (deltaTime % frameRate);
       
-      const time = currentTime * 0.001; // Convert to seconds
-      
-      // Update hero scene
-      heroTorus.material.uniforms.uTime.value = time;
+      // Update rotations
       heroTorus.mesh.rotation.x += 0.002;
       heroTorus.mesh.rotation.y += 0.003;
-      updateParticles(heroParticles, 500);
+      updateParticles(heroParticles, 400);
       
-      // Update gallery scene
-      galleryTorus.material.uniforms.uTime.value = time;
       galleryTorus.mesh.rotation.x += 0.0015;
       galleryTorus.mesh.rotation.y += 0.002;
-      updateParticles(galleryParticles, 250);
+      updateParticles(galleryParticles, 200);
       
-      // Update contact scene
-      contactTorus.material.uniforms.uTime.value = time;
       contactTorus.mesh.rotation.x += 0.001;
       contactTorus.mesh.rotation.y += 0.0015;
-      updateParticles(contactParticles, 250);
+      updateParticles(contactParticles, 200);
       
-      // Render scenes
       heroRenderer.render(heroScene, heroCamera);
       galleryRenderer.render(galleryScene, galleryCamera);
       contactRenderer.render(contactScene, contactCamera);
     }
     
     function updateParticles(particles, bounds) {
-      const positions = particles.particlesGeometry.attributes.position.array;
+      const positions = particles.geometry.attributes.position.array;
       const velocities = particles.velocities;
       
       for (let i = 0; i < positions.length; i += 3) {
@@ -344,18 +288,17 @@
         positions[i + 1] += velocities[i + 1];
         positions[i + 2] += velocities[i + 2];
         
-        // Bounce particles when they reach bounds
         if (Math.abs(positions[i]) > bounds) velocities[i] *= -1;
         if (Math.abs(positions[i + 1]) > bounds) velocities[i + 1] *= -1;
         if (Math.abs(positions[i + 2]) > bounds) velocities[i + 2] *= -1;
       }
       
-      particles.particlesGeometry.attributes.position.needsUpdate = true;
+      particles.geometry.attributes.position.needsUpdate = true;
     }
     
     animate(0);
 
-    // Window Resize with debounce for performance
+    // Window Resize with debounce
     let resizeTimeout;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
@@ -374,10 +317,10 @@
         contactCamera.aspect = width / height;
         contactCamera.updateProjectionMatrix();
         contactRenderer.setSize(width, height);
-      }, 100);
+      }, 150);
     });
 
-    // Custom Cursor with optimized GSAP
+    // Custom Cursor
     const cursor = document.getElementById('cursor');
     const cursorX = { x: window.innerWidth / 2 };
     const cursorY = { y: window.innerHeight / 2 };
@@ -394,56 +337,33 @@
     
     document.querySelectorAll('a, button').forEach(el => {
       el.addEventListener('mouseenter', () => {
-        gsap.to(cursor, { scale: 1.5, opacity: 0.8, duration: 0.2 });
+        gsap.to(cursor, { scale: 1.5, opacity: 0.8, duration: 0.15 });
       });
       el.addEventListener('mouseleave', () => {
-        gsap.to(cursor, { scale: 1, opacity: 0.5, duration: 0.2 });
+        gsap.to(cursor, { scale: 1, opacity: 0.5, duration: 0.15 });
       });
     });
 
-    // GSAP Animations with ScrollTrigger
+    // Simplified GSAP Animations
     gsap.registerPlugin(ScrollTrigger);
     
-    gsap.from("#hero h1", { 
-      opacity: 0, 
-      y: 60, 
-      duration: 1.2, 
-      ease: "power2.out" 
-    });
-    
-    gsap.from("#hero p", { 
-      opacity: 0, 
-      y: 60, 
-      duration: 1.2, 
-      delay: 0.2, 
-      ease: "power2.out" 
-    });
-    
-    gsap.from("#hero a", { 
-      opacity: 0, 
-      y: 60, 
-      duration: 1.2, 
-      delay: 0.4, 
-      ease: "power2.out" 
-    });
-    
+    gsap.from("#hero h1", { opacity: 0, y: 50, duration: 1 });
+    gsap.from("#hero p", { opacity: 0, y: 50, duration: 1, delay: 0.2 });
+    gsap.from("#hero a", { opacity: 0, y: 50, duration: 1, delay: 0.4 });
     gsap.from("#gallery h2", { 
       opacity: 0, 
-      y: 40, 
-      duration: 1, 
-      scrollTrigger: { 
-        trigger: "#gallery", 
-        start: "top 80%",
-        toggleActions: "play none none none"
-      } 
+      y: 30, 
+      duration: 0.8, 
+      scrollTrigger: { trigger: "#gallery", start: "top 85%" } 
     });
 
-    // Video Carousel with optimized rendering
+    // Video Carousel
     const carouselInner = document.getElementById('carousel-inner');
     let currentIndex = 0;
     let carouselItems = [];
     let filteredVideos = [];
     let activeFilter = 'all';
+    let isNavigating = false;
 
     function renderCarousel(filter = 'all') {
       carouselInner.innerHTML = '';
@@ -456,14 +376,13 @@
         return;
       }
       
-      // Create video cards
       filteredVideos.forEach((video, index) => {
         const card = document.createElement('div');
         card.className = 'group w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer';
         card.innerHTML = `
           <div class="relative overflow-hidden rounded-lg">
-            <video class="w-full h-56 object-cover" muted playsinline loop preload="metadata">
-              <source src="${video.src}" type="video/mp4">
+            <video class="w-full h-56 object-cover" muted playsinline loop preload="none" poster="${video.poster}">
+              <source src="${video.src}" type="video/webm">
               Your browser does not support the video tag.
             </video>
             <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -474,17 +393,17 @@
         carouselInner.appendChild(card);
         carouselItems.push(card);
         
-        // Lazy load videos when they come into view
         const videoElement = card.querySelector('video');
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
               videoElement.src = video.src;
+              videoElement.load();
               videoElement.play().catch(e => console.log("Autoplay prevented:", e));
               observer.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.2 });
         
         observer.observe(videoElement);
         
@@ -502,41 +421,45 @@
       if (carouselItems.length === 0) return;
       gsap.to(carouselInner, {
         x: -currentIndex * carouselItems[0].offsetWidth,
-        duration: 0.5,
+        duration: 0.4,
         ease: "power2.out"
       });
     }
 
-    // Carousel Navigation
+    // Debounced Carousel Navigation
     document.getElementById('next-btn').addEventListener('click', () => {
-      if (filteredVideos.length === 0) return;
+      if (isNavigating || filteredVideos.length === 0) return;
+      isNavigating = true;
       currentIndex = (currentIndex + 1) % Math.ceil(filteredVideos.length);
       updateCarouselPosition();
+      setTimeout(() => { isNavigating = false; }, 400);
     });
 
     document.getElementById('prev-btn').addEventListener('click', () => {
-      if (filteredVideos.length === 0) return;
+      if (isNavigating || filteredVideos.length === 0) return;
+      isNavigating = true;
       currentIndex = (currentIndex - 1 + Math.ceil(filteredVideos.length)) % Math.ceil(filteredVideos.length);
       updateCarouselPosition();
+      setTimeout(() => { isNavigating = false; }, 400);
     });
 
     // Video Filters with debounce
     let filterTimeout;
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (btn.dataset.filter === activeFilter) return;
         clearTimeout(filterTimeout);
         filterTimeout = setTimeout(() => {
           document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           renderCarousel(btn.dataset.filter);
-        }, 100);
+        }, 150);
       });
     });
 
-    // Initial render
     renderCarousel();
 
-    // Contact Popup Functionality
+    // Contact Popup
     const getStartedBtn = document.getElementById('getStartedBtn');
     const contactModal = document.getElementById('contactModal');
 
@@ -544,20 +467,14 @@
       e.preventDefault();
       contactModal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-      gsap.from(contactModal, { 
-        opacity: 0, 
-        scale: 0.8, 
-        duration: 0.5, 
-        ease: "back.out(1.7)" 
-      });
+      gsap.from(contactModal, { opacity: 0, scale: 0.9, duration: 0.4 });
     });
 
     function closeContactModal() {
       gsap.to(contactModal, { 
         opacity: 0, 
-        scale: 0.8, 
-        duration: 0.3, 
-        ease: "power2.in",
+        scale: 0.9, 
+        duration: 0.3,
         onComplete: () => {
           contactModal.classList.add('hidden');
           document.body.style.overflow = '';
@@ -565,17 +482,12 @@
       });
     }
 
-    // Close modal when clicking outside or pressing Escape
     contactModal.addEventListener('click', (e) => {
-      if (e.target === contactModal) {
-        closeContactModal();
-      }
+      if (e.target === contactModal) closeContactModal();
     });
     
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !contactModal.classList.contains('hidden')) {
-        closeContactModal();
-      }
+      if (e.key === 'Escape' && !contactModal.classList.contains('hidden')) closeContactModal();
     });
   </script>
 </body>
