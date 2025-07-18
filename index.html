@@ -28,6 +28,7 @@
       font-family: sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
     }
     .filter-btn.active {
       background: linear-gradient(to right, #dc2626, #ec4899);
@@ -73,16 +74,66 @@
         scroll-behavior: auto !important;
       }
     }
-    /* Optimize video rendering */
+    /* Video optimizations */
     video {
       object-fit: cover;
       width: 100%;
       height: 100%;
+      background-color: #111;
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      overflow: hidden;
+    }
+    .video-container video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+      font-size: 14px;
+    }
+    .video-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #ec4899;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    /* Performance optimizations */
+    .will-change {
+      will-change: transform, opacity;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
     }
   </style>
 </head>
-<body class="bg-black text-white font-sans overflow-x-hidden">
-  <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen"></div>
+<body class="bg-black text-white font-sans">
+  <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen z-50"></div>
   <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 py-4 px-4 backdrop-blur-sm transform-gpu">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="#hero" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">DRIP.CGI</a>
@@ -136,17 +187,71 @@
     </div>
   </div>
   <script>
-    // Video Data (Replace with your optimized WebM video URLs and poster images)
+    // Video Data with optimized sources and placeholders
     const videos = [
-      { src: '1.mp4', poster: '1-poster.jpg', title: 'Story Telling', category: 'Motion Graphics' },
-      { src: '3.mp4', poster: '3-poster.jpg', title: 'Dynamic Waves', category: 'Motion Graphics' },
-      { src: '7.mp4', poster: '7-poster.jpg', title: 'Fluid Motion', category: 'Motion Graphics' },
-      { src: '4.mp4', poster: '4-poster.jpg', title: 'Our Agency', category: 'VFX' },
-      { src: '5.mp4', poster: '5-poster.jpg', title: 'Explosive Effects', category: 'VFX' },
-      { src: '6.mp4', poster: '6-poster.jpg', title: 'Digital Storm', category: 'VFX' },
-      { src: '7.mp4', poster: '7-ad-poster.jpg', title: 'Advertisement', category: '3D Ads' },
-      { src: '8.mp4', poster: '8-poster.jpg', title: 'Product Shine', category: '3D Ads' },
-      { src: '9.mp4', poster: '9-poster.jpg', title: '3D Showcase', category: '3D Ads' }
+      { 
+        src: '1.mp4', 
+        poster: '1-poster.jpg', 
+        title: 'Story Telling', 
+        category: 'Motion Graphics',
+        placeholderColor: '#1a1a2e'
+      },
+      { 
+        src: '3.mp4', 
+        poster: '3-poster.jpg', 
+        title: 'Dynamic Waves', 
+        category: 'Motion Graphics',
+        placeholderColor: '#16213e'
+      },
+      { 
+        src: '7.mp4', 
+        poster: '7-poster.jpg', 
+        title: 'Fluid Motion', 
+        category: 'Motion Graphics',
+        placeholderColor: '#0f3460'
+      },
+      { 
+        src: '4.mp4', 
+        poster: '4-poster.jpg', 
+        title: 'Our Agency', 
+        category: 'VFX',
+        placeholderColor: '#1a1a2e'
+      },
+      { 
+        src: '5.mp4', 
+        poster: '5-poster.jpg', 
+        title: 'Explosive Effects', 
+        category: 'VFX',
+        placeholderColor: '#16213e'
+      },
+      { 
+        src: '6.mp4', 
+        poster: '6-poster.jpg', 
+        title: 'Digital Storm', 
+        category: 'VFX',
+        placeholderColor: '#0f3460'
+      },
+      { 
+        src: '7.mp4', 
+        poster: '7-ad-poster.jpg', 
+        title: 'Advertisement', 
+        category: '3D Ads',
+        placeholderColor: '#1a1a2e'
+      },
+      { 
+        src: '8.mp4', 
+        poster: '8-poster.jpg', 
+        title: 'Product Shine', 
+        category: '3D Ads',
+        placeholderColor: '#16213e'
+      },
+      { 
+        src: '9.mp4', 
+        poster: '9-poster.jpg', 
+        title: '3D Showcase', 
+        category: '3D Ads',
+        placeholderColor: '#0f3460'
+      }
     ];
 
     // Initialize Three.js scenes with performance optimizations
@@ -158,7 +263,7 @@
         alpha: true,
         powerPreference: "high-performance"
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Lower pixel ratio for performance
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.outputEncoding = THREE.sRGBEncoding;
       
@@ -221,7 +326,7 @@
 
     // Simplified torus knot
     function createTorusKnot(scene, color) {
-      const geometry = new THREE.TorusKnotGeometry(20, 3, 80, 12); // Reduced segments
+      const geometry = new THREE.TorusKnotGeometry(20, 3, 80, 12);
       const material = new THREE.MeshBasicMaterial({
         color: new THREE.Color(color),
         transparent: true,
@@ -250,11 +355,13 @@
     addLights(galleryScene, 0xff5555, 0.8);
     addLights(contactScene, 0x5500ff, 0.6);
 
-    // Optimized animation loop
+    // Optimized animation loop with frame limiting
     let lastTime = 0;
     const frameRate = 1000 / 60;
+    let isAnimating = true;
     
     function animate(currentTime) {
+      if (!isAnimating) return;
       requestAnimationFrame(animate);
       
       const deltaTime = currentTime - lastTime;
@@ -297,6 +404,12 @@
     }
     
     animate(0);
+
+    // Pause animations when page is not visible
+    document.addEventListener('visibilitychange', () => {
+      isAnimating = !document.hidden;
+      if (isAnimating) animate(0);
+    });
 
     // Window Resize with debounce
     let resizeTimeout;
@@ -357,17 +470,35 @@
       scrollTrigger: { trigger: "#gallery", start: "top 85%" } 
     });
 
-    // Video Carousel
+    // Video Carousel with optimized loading
     const carouselInner = document.getElementById('carousel-inner');
     let currentIndex = 0;
     let carouselItems = [];
     let filteredVideos = [];
     let activeFilter = 'all';
     let isNavigating = false;
+    let videoElements = [];
+
+    // Preload the first few videos
+    function preloadVideos(startIndex = 0, count = 3) {
+      const endIndex = Math.min(startIndex + count, filteredVideos.length);
+      for (let i = startIndex; i < endIndex; i++) {
+        const video = filteredVideos[i];
+        if (!video.preloaded) {
+          const preloadLink = document.createElement('link');
+          preloadLink.rel = 'preload';
+          preloadLink.as = 'video';
+          preloadLink.href = video.src;
+          document.head.appendChild(preloadLink);
+          video.preloaded = true;
+        }
+      }
+    }
 
     function renderCarousel(filter = 'all') {
       carouselInner.innerHTML = '';
       carouselItems = [];
+      videoElements = [];
       activeFilter = filter;
       filteredVideos = filter === 'all' ? [...videos] : videos.filter(v => v.category === filter);
       
@@ -376,53 +507,101 @@
         return;
       }
       
+      preloadVideos(0, 3);
+      
       filteredVideos.forEach((video, index) => {
         const card = document.createElement('div');
-        card.className = 'group w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer';
+        card.className = 'group w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer will-change';
+        
         card.innerHTML = `
-          <div class="relative overflow-hidden rounded-lg">
-            <video class="w-full h-56 object-cover" muted playsinline loop preload="none" poster="${video.poster}">
-              <source src="${video.src}" type="video/webm">
-              Your browser does not support the video tag.
-            </video>
+          <div class="relative overflow-hidden rounded-lg aspect-video">
+            <div class="video-container">
+              <div class="video-placeholder" style="background-color: ${video.placeholderColor}">
+                <div class="video-loading"></div>
+              </div>
+              <video class="lazy" muted playsinline loop preload="none" poster="${video.poster}" data-src="${video.src}">
+                Your browser does not support the video tag.
+              </video>
+            </div>
             <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <p class="text-white text-lg font-semibold">${video.title}</p>
             </div>
           </div>
         `;
+        
         carouselInner.appendChild(card);
         carouselItems.push(card);
         
         const videoElement = card.querySelector('video');
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              videoElement.src = video.src;
-              videoElement.load();
-              videoElement.play().catch(e => console.log("Autoplay prevented:", e));
-              observer.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.2 });
-        
-        observer.observe(videoElement);
-        
-        videoElement.addEventListener('error', () => {
-          console.error(`Failed to load video: ${video.src}`);
-          card.innerHTML = `<div class="w-full h-56 bg-gray-800 flex items-center justify-center rounded-lg"><p class="text-red-500">Video failed to load</p></div>`;
-        });
+        const placeholder = card.querySelector('.video-placeholder');
+        videoElements.push({ element: videoElement, placeholder });
       });
       
       currentIndex = 0;
       updateCarouselPosition();
+      lazyLoadVisibleVideos();
+    }
+
+    function lazyLoadVisibleVideos() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const videoContainer = entry.target;
+            const video = videoContainer.querySelector('video.lazy');
+            const placeholder = videoContainer.querySelector('.video-placeholder');
+            
+            if (video && !video.src) {
+              video.src = video.dataset.src;
+              video.load();
+              
+              video.addEventListener('loadeddata', () => {
+                video.play().catch(e => console.log("Autoplay prevented:", e));
+                if (placeholder) {
+                  gsap.to(placeholder, { opacity: 0, duration: 0.3, onComplete: () => {
+                    placeholder.style.display = 'none';
+                  }});
+                }
+              }, { once: true });
+              
+              video.addEventListener('error', () => {
+                console.error(`Failed to load video: ${video.dataset.src}`);
+                if (placeholder) {
+                  placeholder.innerHTML = '<p class="text-red-500">Video failed to load</p>';
+                  placeholder.style.backgroundColor = '#111';
+                }
+              });
+            }
+            
+            observer.unobserve(videoContainer);
+          }
+        });
+      }, { rootMargin: '100px', threshold: 0.01 });
+      
+      document.querySelectorAll('.video-container').forEach(container => {
+        observer.observe(container);
+      });
     }
 
     function updateCarouselPosition() {
       if (carouselItems.length === 0) return;
+      
+      // Preload videos around the new position
+      const preloadStart = Math.max(0, currentIndex - 1);
+      preloadVideos(preloadStart, 3);
+      
       gsap.to(carouselInner, {
         x: -currentIndex * carouselItems[0].offsetWidth,
         duration: 0.4,
         ease: "power2.out"
+      });
+      
+      // Pause videos that are not visible
+      videoElements.forEach((video, index) => {
+        if (Math.abs(index - currentIndex) > 1) {
+          if (video.element && !video.element.paused) {
+            video.element.pause();
+          }
+        }
       });
     }
 
@@ -450,6 +629,13 @@
         if (btn.dataset.filter === activeFilter) return;
         clearTimeout(filterTimeout);
         filterTimeout = setTimeout(() => {
+          // Pause all current videos before switching
+          videoElements.forEach(video => {
+            if (video.element && !video.element.paused) {
+              video.element.pause();
+            }
+          });
+          
           document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           renderCarousel(btn.dataset.filter);
@@ -457,6 +643,7 @@
       });
     });
 
+    // Initialize carousel with all videos
     renderCarousel();
 
     // Contact Popup
@@ -488,6 +675,25 @@
     
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !contactModal.classList.contains('hidden')) closeContactModal();
+    });
+
+    // Pause videos when they're not visible
+    const videoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const video = entry.target;
+        if (entry.isIntersecting) {
+          video.play().catch(e => console.log("Autoplay prevented:", e));
+        } else {
+          if (!video.paused) video.pause();
+        }
+      });
+    }, { threshold: 0.1 });
+
+    // Observe all videos after they're loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('video').forEach(video => {
+        videoObserver.observe(video);
+      });
     });
   </script>
 </body>
