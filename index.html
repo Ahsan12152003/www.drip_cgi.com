@@ -107,6 +107,7 @@
       justify-content: center;
       color: #555;
       font-size: 14px;
+      background: linear-gradient(45deg, #1a1a2e, #16213e);
     }
     .video-loading {
       position: absolute;
@@ -130,6 +131,31 @@
     .backface-hidden {
       backface-visibility: hidden;
     }
+    .video-buffer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(220, 38, 38, 0.2), rgba(236, 72, 153, 0.2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 1;
+    }
+    .video-buffer.show {
+      opacity: 1;
+    }
+    .buffer-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #ff0055;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
   </style>
 </head>
 <body class="bg-black text-white font-sans">
@@ -149,7 +175,7 @@
     <div class="relative z-10 text-center px-4">
       <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">DRIP.CGI</h1>
       <p class="text-xl md:text-3xl mt-4 opacity-80">Pioneering Hyper-Realistic CGI Storytelling</p>
-      <a href="#gallery" class="mt-8 inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Discover Our Work</a>
+      <a href="#gallery" class="mt-8 inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text ubiquit-lg font-semibold transition-all">Discover Our Work</a>
     </div>
   </section>
   <section id="gallery" class="py-20 px-4 relative">
@@ -178,7 +204,7 @@
       <h3 class="text-2xl font-bold mb-4 transform-gpu">Connect with Us</h3>
       <div class="flex justify-center items-center space-x-4 mb-4 transform-gpu">
         <i class="fab fa-instagram text-2xl text-pink-500 transform-gpu"></i>
-        <a href="https://instagram.com/drip_cgi" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">drip.cgi</a>
+        <a href="https://instagram.com/drip.cgii" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">drip.cgi</a>
       </div>
       <div class="flex justify-center items-center space-x-4 transform-gpu">
         <i class="fas fa-envelope text-2xl text-green-500 transform-gpu"></i>
@@ -516,8 +542,11 @@
         card.innerHTML = `
           <div class="relative overflow-hidden rounded-lg aspect-video">
             <div class="video-container">
-              <div class="video-placeholder" style="background-color: ${video.placeholderColor}">
+              <div class="video-placeholder" style="background: linear-gradient(45deg, ${video.placeholderColor}, #16213e)">
                 <div class="video-loading"></div>
+              </div>
+              <div class="video-buffer">
+                <div class="buffer-spinner"></div>
               </div>
               <video class="lazy" muted playsinline loop preload="none" poster="${video.poster}" data-src="${video.src}">
                 Your browser does not support the video tag.
@@ -534,7 +563,8 @@
         
         const videoElement = card.querySelector('video');
         const placeholder = card.querySelector('.video-placeholder');
-        videoElements.push({ element: videoElement, placeholder });
+        const buffer = card.querySelector('.video-buffer');
+        videoElements.push({ element: videoElement, placeholder, buffer });
       });
       
       currentIndex = 0;
@@ -549,12 +579,17 @@
             const videoContainer = entry.target;
             const video = videoContainer.querySelector('video.lazy');
             const placeholder = videoContainer.querySelector('.video-placeholder');
+            const buffer = videoContainer.querySelector('.video-buffer');
             
             if (video && !video.src) {
+              gsap.to(buffer, { opacity: 1, duration: 0.3 }); // Show buffer
               video.src = video.dataset.src;
               video.load();
               
-              video.addEventListener('loadeddata', () => {
+              video.addEventListener('canplay', () => {
+                gsap.to(buffer, { opacity: 0, duration: 0.3, onComplete: () => {
+                  buffer.style.display = 'none';
+                }});
                 video.play().catch(e => console.log("Autoplay prevented:", e));
                 if (placeholder) {
                   gsap.to(placeholder, { opacity: 0, duration: 0.3, onComplete: () => {
@@ -569,7 +604,10 @@
                   placeholder.innerHTML = '<p class="text-red-500">Video failed to load</p>';
                   placeholder.style.backgroundColor = '#111';
                 }
-              });
+                gsap.to(buffer, { opacity: 0, duration: 0.3, onComplete: () => {
+                  buffer.style.display = 'none';
+                }});
+              }, { once: true });
             }
             
             observer.unobserve(videoContainer);
