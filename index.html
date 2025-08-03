@@ -1,738 +1,659 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="DRIP.CGI - Premier marketing agency specializing in hyper-realistic CGI ad videos and 3D motion graphics. Experience our stunning visual creations.">
-  <meta name="keywords" content="DRIP.CGI, CGI, 3D motion graphics, VFX, marketing agency, video ads">
-  <meta name="author" content="DRIP.CGI">
-  <title>DRIP.CGI - Hyper-Realistic CGI Ad Experiences</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23ec4899'>D</text></svg>">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-size: 100%;
-      line-height: 1.15;
-    }
-    html {
-      font-size: 16px;
-    }
-    body {
-      font-family: sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overflow-x: hidden;
-    }
-    .filter-btn.active {
-      background: linear-gradient(to right, #dc2626, #ec4899);
-      will-change: background;
-    }
-    .nav-link {
-      position: relative;
-    }
-    .nav-link::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(to right, #dc2626, #ec4899);
-      transition: width 0.3s ease;
-      will-change: width;
-    }
-    .nav-link:hover::after {
-      width: 100%;
-    }
-    * {
-      scroll-behavior: smooth;
-    }
-    canvas {
-      display: block;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: -1;
-      width: 100%;
-      height: 100%;
-    }
-    .transform-gpu {
-      transform: translate3d(0, 0, 0);
-    }
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
-    }
-    /* Video optimizations */
-    video {
-      object-fit: cover;
-      width: 100%;
-      height: 100%;
-      background-color: #111;
-    }
-    .video-container {
-      position: relative;
-      width: 100%;
-      height: 0;
-      padding-bottom: 56.25%; /* 16:9 aspect ratio */
-      overflow: hidden;
-    }
-    .video-container video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    .video-placeholder {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #222;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #555;
-      font-size: 14px;
-      background: linear-gradient(45deg, #1a1a2e, #16213e);
-    }
-    .video-loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #ec4899;
-      animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    /* Performance optimizations */
-    .will-change {
-      will-change: transform, opacity;
-    }
-    .backface-hidden {
-      backface-visibility: hidden;
-    }
-    .video-buffer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to bottom, rgba(220, 38, 38, 0.2), rgba(236, 72, 153, 0.2));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      z-index: 1;
-    }
-    .video-buffer.show {
-      opacity: 1;
-    }
-    .buffer-spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top-color: #ff0055;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DRIP.CGI - Premier marketing agency specializing in hyper-realistic CGI ad videos and 3D motion graphics. Experience our stunning visual creations.">
+    <meta name="keywords" content="DRIP.CGI, CGI, 3D motion graphics, VFX, marketing agency, video ads">
+    <meta name="author" content="DRIP.CGI">
+    <title>DRIP.CGI - Hyper-Realistic CGI Ad Experiences</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23ec4899'>D</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <style>
+        /* Base styles for a clean slate */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 100%;
+            line-height: 1.15;
+            -webkit-tap-highlight-color: transparent; /* Removes touch highlight */
+        }
+        html {
+            font-size: 16px;
+        }
+        body {
+            font-family: sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            background-color: #000;
+        }
+        /* Custom styles for animations and interactivity */
+        .filter-btn.active {
+            background: linear-gradient(to right, #dc2626, #ec4899);
+            will-change: background, transform;
+        }
+        .nav-link {
+            position: relative;
+            will-change: color, width;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, #dc2626, #ec4899);
+            transition: width 0.3s ease;
+            will-change: width;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        * {
+            scroll-behavior: smooth;
+        }
+        /* Three.js canvas setup */
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+        }
+        /* Performance optimizations */
+        .transform-gpu {
+            transform: translate3d(0, 0, 0);
+        }
+        .will-change {
+            will-change: transform, opacity, filter;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        /* Reduced motion media query for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        /* Video loading states */
+        video {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            background-color: #111;
+            display: none; /* Hide until loaded */
+        }
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            overflow: hidden;
+            height: 0;
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block; /* Show once the lazy loader adds the src */
+        }
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 14px;
+        }
+        .video-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #ec4899;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
 </head>
 <body class="bg-black text-white font-sans">
-  <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen z-50"></div>
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 py-4 px-4 backdrop-blur-sm transform-gpu">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <a href="#hero" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">DRIP.CGI</a>
-      <div class="space-x-4">
-        <a href="#hero" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu">Home</a>
-        <a href="#gallery" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu">Gallery</a>
-        <a href="#contact" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu">Contact</a>
-      </div>
-    </div>
-  </nav>
-  <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
-    <canvas id="three-canvas" class="absolute inset-0"></canvas>
-    <div class="relative z-10 text-center px-4">
-      <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">DRIP.CGI</h1>
-      <p class="text-xl md:text-3xl mt-4 opacity-80">Pioneering Hyper-Realistic CGI Storytelling</p>
-      <a href="#gallery" class="mt-8 inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text ubiquit-lg font-semibold transition-all">Discover Our Work</a>
-    </div>
-  </section>
-  <section id="gallery" class="py-20 px-4 relative">
-    <canvas id="gallery-canvas" class="absolute inset-0 z-[-1]"></canvas>
-    <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Our CGI Creations</h2>
-    <div class="flex justify-center mb-8 space-x-4">
-      <button class="filter-btn active bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu" data-filter="all">All</button>
-      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu" data-filter="Motion Graphics">Motion Graphics</button>
-      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu" data-filter="VFX">VFX</button>
-      <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu" data-filter="3D Ads">3D Ads</button>
-    </div>
-    <div id="video-carousel" class="relative max-w-6xl mx-auto overflow-hidden">
-      <div id="carousel-inner" class="flex transition-transform duration-500"></div>
-      <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu">←</button>
-      <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu">→</button>
-    </div>
-  </section>
-  <section id="contact" class="py-20 px-4 relative h-screen flex flex-col items-center justify-center">
-    <canvas id="contact-canvas" class="absolute inset-0 z-[-1]"></canvas>
-    <h2 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Create with Us</h2>
-    <a href="#" id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Get Started</a>
-  </section>
-  <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
-    <div class="relative bg-gray-900 p-6 rounded-lg max-w-md w-full text-center border border-gray-800">
-      <button onclick="closeContactModal()" class="absolute top-2 right-2 text-white text-2xl hover:text-red-500 transition-colors duration-300">×</button>
-      <h3 class="text-2xl font-bold mb-4 transform-gpu">Connect with Us</h3>
-      <div class="flex justify-center items-center space-x-4 mb-4 transform-gpu">
-        <i class="fab fa-instagram text-2xl text-pink-500 transform-gpu"></i>
-        <a href="https://instagram.com/drip.cgii" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">drip.cgi</a>
-      </div>
-      <div class="flex justify-center items-center space-x-4 transform-gpu">
-        <i class="fas fa-envelope text-2xl text-green-500 transform-gpu"></i>
-        <a href="mailto:beingahsan12@gmail.com" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">beingahsan12@gmail.com</a>
-      </div>
-    </div>
-  </div>
-  <script>
-    // Video Data with optimized sources and placeholders
-    const videos = [
-      { 
-        src: '1.mp4', 
-        poster: '1-poster.jpg', 
-        title: 'Story Telling', 
-        category: 'Motion Graphics',
-        placeholderColor: '#1a1a2e'
-      },
-      { 
-        src: '3.mp4', 
-        poster: '3-poster.jpg', 
-        title: 'Dynamic Waves', 
-        category: 'Motion Graphics',
-        placeholderColor: '#16213e'
-      },
-      { 
-        src: '7.mp4', 
-        poster: '7-poster.jpg', 
-        title: 'Fluid Motion', 
-        category: 'Motion Graphics',
-        placeholderColor: '#0f3460'
-      },
-      { 
-        src: '4.mp4', 
-        poster: '4-poster.jpg', 
-        title: 'Our Agency', 
-        category: 'VFX',
-        placeholderColor: '#1a1a2e'
-      },
-      { 
-        src: '5.mp4', 
-        poster: '5-poster.jpg', 
-        title: 'Explosive Effects', 
-        category: 'VFX',
-        placeholderColor: '#16213e'
-      },
-      { 
-        src: '6.mp4', 
-        poster: '6-poster.jpg', 
-        title: 'Digital Storm', 
-        category: 'VFX',
-        placeholderColor: '#0f3460'
-      },
-      { 
-        src: '7.mp4', 
-        poster: '7-ad-poster.jpg', 
-        title: 'Advertisement', 
-        category: '3D Ads',
-        placeholderColor: '#1a1a2e'
-      },
-      { 
-        src: '8.mp4', 
-        poster: '8-poster.jpg', 
-        title: 'Product Shine', 
-        category: '3D Ads',
-        placeholderColor: '#16213e'
-      },
-      { 
-        src: '9.mp4', 
-        poster: '9-poster.jpg', 
-        title: '3D Showcase', 
-        category: '3D Ads',
-        placeholderColor: '#0f3460'
-      }
-    ];
+    <!-- Custom animated cursor -->
+    <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen z-50 will-change"></div>
 
-    // Initialize Three.js scenes with performance optimizations
-    function initScene(canvasId) {
-      const canvas = document.getElementById(canvasId);
-      const renderer = new THREE.WebGLRenderer({
-        canvas,
-        antialias: true,
-        alpha: true,
-        powerPreference: "high-performance"
-      });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.outputEncoding = THREE.sRGBEncoding;
-      
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      
-      return { scene, camera, renderer };
-    }
-
-    // Hero Scene
-    const { scene: heroScene, camera: heroCamera, renderer: heroRenderer } = initScene('three-canvas');
-    heroCamera.position.z = 150;
-
-    // Gallery Scene
-    const { scene: galleryScene, camera: galleryCamera, renderer: galleryRenderer } = initScene('gallery-canvas');
-    galleryCamera.position.z = 100;
-
-    // Contact Scene
-    const { scene: contactScene, camera: contactCamera, renderer: contactRenderer } = initScene('contact-canvas');
-    contactCamera.position.z = 100;
-
-    // Optimized particle system with instancing
-    function createParticles(scene, count, color, size, speed) {
-      const geometry = new THREE.BufferGeometry();
-      const positions = new Float32Array(count * 3);
-      const velocities = new Float32Array(count * 3);
-      
-      for (let i = 0; i < count; i++) {
-        const i3 = i * 3;
-        positions[i3] = (Math.random() - 0.5) * 800;
-        positions[i3 + 1] = (Math.random() - 0.5) * 800;
-        positions[i3 + 2] = (Math.random() - 0.5) * 800;
-        velocities[i3] = (Math.random() - 0.5) * speed;
-        velocities[i3 + 1] = (Math.random() - 0.5) * speed;
-        velocities[i3 + 2] = (Math.random() - 0.5) * speed;
-      }
-      
-      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      geometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
-      
-      const material = new THREE.PointsMaterial({
-        size: size,
-        color: new THREE.Color(color),
-        transparent: true,
-        opacity: 0.5,
-        blending: THREE.AdditiveBlending,
-        sizeAttenuation: true
-      });
-      
-      const particles = new THREE.Points(geometry, material);
-      scene.add(particles);
-      
-      return { particles, geometry, velocities };
-    }
-
-    // Reduced particle counts
-    const heroParticles = createParticles(heroScene, 5000, 0xff0055, 2, 0.4);
-    const galleryParticles = createParticles(galleryScene, 2000, 0xff00aa, 1.5, 0.2);
-    const contactParticles = createParticles(contactScene, 2000, 0x00aaff, 1.5, 0.15);
-
-    // Simplified torus knot
-    function createTorusKnot(scene, color) {
-      const geometry = new THREE.TorusKnotGeometry(20, 3, 80, 12);
-      const material = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(color),
-        transparent: true,
-        opacity: 0.6,
-        wireframe: true
-      });
-      
-      const mesh = new THREE.Mesh(geometry, material);
-      scene.add(mesh);
-      
-      return { mesh };
-    }
-
-    const heroTorus = createTorusKnot(heroScene, 0xff0055);
-    const galleryTorus = createTorusKnot(galleryScene, 0xff5555);
-    const contactTorus = createTorusKnot(contactScene, 0x5500ff);
-
-    // Simplified lighting
-    function addLights(scene, color, intensity) {
-      const pointLight = new THREE.PointLight(color, intensity, 100);
-      pointLight.position.set(50, 50, 50);
-      scene.add(pointLight);
-    }
-
-    addLights(heroScene, 0xff0055, 1);
-    addLights(galleryScene, 0xff5555, 0.8);
-    addLights(contactScene, 0x5500ff, 0.6);
-
-    // Optimized animation loop with frame limiting
-    let lastTime = 0;
-    const frameRate = 1000 / 60;
-    let isAnimating = true;
-    
-    function animate(currentTime) {
-      if (!isAnimating) return;
-      requestAnimationFrame(animate);
-      
-      const deltaTime = currentTime - lastTime;
-      if (deltaTime < frameRate) return;
-      lastTime = currentTime - (deltaTime % frameRate);
-      
-      // Update rotations
-      heroTorus.mesh.rotation.x += 0.002;
-      heroTorus.mesh.rotation.y += 0.003;
-      updateParticles(heroParticles, 400);
-      
-      galleryTorus.mesh.rotation.x += 0.0015;
-      galleryTorus.mesh.rotation.y += 0.002;
-      updateParticles(galleryParticles, 200);
-      
-      contactTorus.mesh.rotation.x += 0.001;
-      contactTorus.mesh.rotation.y += 0.0015;
-      updateParticles(contactParticles, 200);
-      
-      heroRenderer.render(heroScene, heroCamera);
-      galleryRenderer.render(galleryScene, galleryCamera);
-      contactRenderer.render(contactScene, contactCamera);
-    }
-    
-    function updateParticles(particles, bounds) {
-      const positions = particles.geometry.attributes.position.array;
-      const velocities = particles.velocities;
-      
-      for (let i = 0; i < positions.length; i += 3) {
-        positions[i] += velocities[i];
-        positions[i + 1] += velocities[i + 1];
-        positions[i + 2] += velocities[i + 2];
-        
-        if (Math.abs(positions[i]) > bounds) velocities[i] *= -1;
-        if (Math.abs(positions[i + 1]) > bounds) velocities[i + 1] *= -1;
-        if (Math.abs(positions[i + 2]) > bounds) velocities[i + 2] *= -1;
-      }
-      
-      particles.geometry.attributes.position.needsUpdate = true;
-    }
-    
-    animate(0);
-
-    // Pause animations when page is not visible
-    document.addEventListener('visibilitychange', () => {
-      isAnimating = !document.hidden;
-      if (isAnimating) animate(0);
-    });
-
-    // Window Resize with debounce
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        
-        heroCamera.aspect = width / height;
-        heroCamera.updateProjectionMatrix();
-        heroRenderer.setSize(width, height);
-        
-        galleryCamera.aspect = width / height;
-        galleryCamera.updateProjectionMatrix();
-        galleryRenderer.setSize(width, height);
-        
-        contactCamera.aspect = width / height;
-        contactCamera.updateProjectionMatrix();
-        contactRenderer.setSize(width, height);
-      }, 150);
-    });
-
-    // Custom Cursor
-    const cursor = document.getElementById('cursor');
-    const cursorX = { x: window.innerWidth / 2 };
-    const cursorY = { y: window.innerHeight / 2 };
-    
-    document.addEventListener('mousemove', (e) => {
-      cursorX.x = e.clientX;
-      cursorY.y = e.clientY;
-    });
-    
-    gsap.ticker.add(() => {
-      cursor.style.left = `${cursorX.x}px`;
-      cursor.style.top = `${cursorY.y}px`;
-    });
-    
-    document.querySelectorAll('a, button').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        gsap.to(cursor, { scale: 1.5, opacity: 0.8, duration: 0.15 });
-      });
-      el.addEventListener('mouseleave', () => {
-        gsap.to(cursor, { scale: 1, opacity: 0.5, duration: 0.15 });
-      });
-    });
-
-    // Simplified GSAP Animations
-    gsap.registerPlugin(ScrollTrigger);
-    
-    gsap.from("#hero h1", { opacity: 0, y: 50, duration: 1 });
-    gsap.from("#hero p", { opacity: 0, y: 50, duration: 1, delay: 0.2 });
-    gsap.from("#hero a", { opacity: 0, y: 50, duration: 1, delay: 0.4 });
-    gsap.from("#gallery h2", { 
-      opacity: 0, 
-      y: 30, 
-      duration: 0.8, 
-      scrollTrigger: { trigger: "#gallery", start: "top 85%" } 
-    });
-
-    // Video Carousel with optimized loading
-    const carouselInner = document.getElementById('carousel-inner');
-    let currentIndex = 0;
-    let carouselItems = [];
-    let filteredVideos = [];
-    let activeFilter = 'all';
-    let isNavigating = false;
-    let videoElements = [];
-
-    // Preload the first few videos
-    function preloadVideos(startIndex = 0, count = 3) {
-      const endIndex = Math.min(startIndex + count, filteredVideos.length);
-      for (let i = startIndex; i < endIndex; i++) {
-        const video = filteredVideos[i];
-        if (!video.preloaded) {
-          const preloadLink = document.createElement('link');
-          preloadLink.rel = 'preload';
-          preloadLink.as = 'video';
-          preloadLink.href = video.src;
-          document.head.appendChild(preloadLink);
-          video.preloaded = true;
-        }
-      }
-    }
-
-    function renderCarousel(filter = 'all') {
-      carouselInner.innerHTML = '';
-      carouselItems = [];
-      videoElements = [];
-      activeFilter = filter;
-      filteredVideos = filter === 'all' ? [...videos] : videos.filter(v => v.category === filter);
-      
-      if (filteredVideos.length === 0) {
-        carouselInner.innerHTML = '<p class="text-center text-gray-500 w-full">No videos found for this category.</p>';
-        return;
-      }
-      
-      preloadVideos(0, 3);
-      
-      filteredVideos.forEach((video, index) => {
-        const card = document.createElement('div');
-        card.className = 'group w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer will-change';
-        
-        card.innerHTML = `
-          <div class="relative overflow-hidden rounded-lg aspect-video">
-            <div class="video-container">
-              <div class="video-placeholder" style="background: linear-gradient(45deg, ${video.placeholderColor}, #16213e)">
-                <div class="video-loading"></div>
-              </div>
-              <div class="video-buffer">
-                <div class="buffer-spinner"></div>
-              </div>
-              <video class="lazy" muted playsinline loop preload="none" poster="${video.poster}" data-src="${video.src}">
-                Your browser does not support the video tag.
-              </video>
+    <!-- Navigation bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 py-4 px-4 backdrop-blur-sm transform-gpu will-change">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="#hero" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">DRIP.CGI</a>
+            <div class="space-x-4">
+                <a href="#hero" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu will-change">Home</a>
+                <a href="#gallery" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu will-change">Gallery</a>
+                <a href="#contact" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu will-change">Contact</a>
             </div>
-            <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <p class="text-white text-lg font-semibold">${video.title}</p>
-            </div>
-          </div>
-        `;
-        
-        carouselInner.appendChild(card);
-        carouselItems.push(card);
-        
-        const videoElement = card.querySelector('video');
-        const placeholder = card.querySelector('.video-placeholder');
-        const buffer = card.querySelector('.video-buffer');
-        videoElements.push({ element: videoElement, placeholder, buffer });
-      });
-      
-      currentIndex = 0;
-      updateCarouselPosition();
-      lazyLoadVisibleVideos();
-    }
+        </div>
+    </nav>
 
-    function lazyLoadVisibleVideos() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const videoContainer = entry.target;
-            const video = videoContainer.querySelector('video.lazy');
-            const placeholder = videoContainer.querySelector('.video-placeholder');
-            const buffer = videoContainer.querySelector('.video-buffer');
+    <!-- Hero Section with Three.js background -->
+    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
+        <canvas id="three-canvas" class="absolute inset-0"></canvas>
+        <div class="relative z-10 text-center px-4">
+            <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">DRIP.CGI</h1>
+            <p class="text-xl md:text-3xl mt-4 opacity-80">Pioneering Hyper-Realistic CGI Storytelling</p>
+            <a href="#gallery" class="mt-8 inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Discover Our Work</a>
+        </div>
+    </section>
+
+    <!-- Gallery Section with video carousel and filters -->
+    <section id="gallery" class="py-20 px-4 relative">
+        <canvas id="gallery-canvas" class="absolute inset-0 z-[-1]"></canvas>
+        <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Our CGI Creations</h2>
+        <div class="flex justify-center mb-8 space-x-4 flex-wrap">
+            <button class="filter-btn active bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu will-change" data-filter="all">All</button>
+            <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu will-change" data-filter="Motion Graphics">Motion Graphics</button>
+            <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu will-change" data-filter="VFX">VFX</button>
+            <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu will-change" data-filter="3D Ads">3D Ads</button>
+        </div>
+        <div id="video-carousel" class="relative max-w-6xl mx-auto overflow-hidden">
+            <div id="carousel-inner" class="flex transition-transform duration-500 ease-in-out will-change"></div>
+            <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu will-change">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu will-change">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Contact Section with Three.js background -->
+    <section id="contact" class="py-20 px-4 relative h-screen flex flex-col items-center justify-center">
+        <canvas id="contact-canvas" class="absolute inset-0 z-[-1]"></canvas>
+        <h2 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Create with Us</h2>
+        <a href="#" id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Get Started</a>
+    </section>
+
+    <!-- Contact Modal for social links -->
+    <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
+        <div class="relative bg-gray-900 p-6 rounded-lg max-w-md w-full text-center border border-gray-800">
+            <button onclick="closeContactModal()" class="absolute top-2 right-2 text-white text-2xl hover:text-red-500 transition-colors duration-300">×</button>
+            <h3 class="text-2xl font-bold mb-4 transform-gpu">Connect with Us</h3>
+            <div class="flex flex-col space-y-4">
+                <div class="flex justify-center items-center space-x-4 transform-gpu">
+                    <i class="fab fa-instagram text-2xl text-pink-500 transform-gpu"></i>
+                    <a href="https://instagram.com/drip.cgii" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">drip.cgi</a>
+                </div>
+                <div class="flex justify-center items-center space-x-4 transform-gpu">
+                    <i class="fas fa-envelope text-2xl text-green-500 transform-gpu"></i>
+                    <a href="mailto:beingahsan12@gmail.com" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">beingahsan12@gmail.com</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Video data with placeholders and preloading flags
+        const videos = [
+            { src: '1.mp4', poster: '11.jpg', title: 'Story Telling', category: 'Motion Graphics', preloaded: false },
+            { src: '3.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/3-poster.jpg', title: 'Dynamic Waves', category: 'Motion Graphics', preloaded: false },
+            { src: '7.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/4-poster.jpg', title: 'Our Agency', category: 'VFX', preloaded: false },
+            { src: '4.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/5-poster.jpg', title: 'Explosive Effects', category: 'VFX', preloaded: false },
+            { src: '6.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/6-poster.jpg', title: 'Digital Storm', category: 'VFX', preloaded: false },
+            { src: '10.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/7-poster.jpg', title: 'Advertisement', category: '3D Ads', preloaded: false },
+            { src: '8.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/8-poster.jpg', title: 'Product Shine', category: '3D Ads', preloaded: false },
+            { src: '9.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/9-poster.jpg', title: '3D Showcase', category: '3D Ads', preloaded: false }
+        ];
+
+        // --- THREE.JS SCENE MANAGEMENT ---
+
+        // Initialize Three.js scenes with performance optimizations
+        function initScene(canvasId, particleCount, torusColor, particleColor, particleSize, particleSpeed) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const renderer = new THREE.WebGLRenderer({
+                canvas,
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 150;
+
+            // Create particles and torus with specified parameters
+            const particles = createParticles(scene, particleCount, particleColor, particleSize, particleSpeed);
+            const torus = createTorusKnot(scene, torusColor);
+            addLights(scene, torusColor, 1);
             
-            if (video && !video.src) {
-              gsap.to(buffer, { opacity: 1, duration: 0.3 }); // Show buffer
-              video.src = video.dataset.src;
-              video.load();
-              
-              video.addEventListener('canplay', () => {
-                gsap.to(buffer, { opacity: 0, duration: 0.3, onComplete: () => {
-                  buffer.style.display = 'none';
-                }});
-                video.play().catch(e => console.log("Autoplay prevented:", e));
-                if (placeholder) {
-                  gsap.to(placeholder, { opacity: 0, duration: 0.3, onComplete: () => {
-                    placeholder.style.display = 'none';
-                  }});
-                }
-              }, { once: true });
-              
-              video.addEventListener('error', () => {
-                console.error(`Failed to load video: ${video.dataset.src}`);
-                if (placeholder) {
-                  placeholder.innerHTML = '<p class="text-red-500">Video failed to load</p>';
-                  placeholder.style.backgroundColor = '#111';
-                }
-                gsap.to(buffer, { opacity: 0, duration: 0.3, onComplete: () => {
-                  buffer.style.display = 'none';
-                }});
-              }, { once: true });
+            return { scene, camera, renderer, particles, torus };
+        }
+
+        // Optimized particle system using BufferGeometry for better performance
+        function createParticles(scene, count, color, size, speed) {
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            const velocities = new Float32Array(count * 3);
+            
+            for (let i = 0; i < count; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 800;
+                positions[i3 + 1] = (Math.random() - 0.5) * 800;
+                positions[i3 + 2] = (Math.random() - 0.5) * 800;
+                velocities[i3] = (Math.random() - 0.5) * speed;
+                velocities[i3 + 1] = (Math.random() - 0.5) * speed;
+                velocities[i3 + 2] = (Math.random() - 0.5) * speed;
             }
             
-            observer.unobserve(videoContainer);
-          }
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const material = new THREE.PointsMaterial({
+                size: size,
+                color: new THREE.Color(color),
+                transparent: true,
+                opacity: 0.5,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            });
+            
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+            
+            return { particles, geometry, velocities };
+        }
+        
+        // Simplified torus knot for reduced polygon count
+        function createTorusKnot(scene, color) {
+            const geometry = new THREE.TorusKnotGeometry(20, 3, 80, 12);
+            const material = new THREE.MeshBasicMaterial({
+                color: new THREE.Color(color),
+                transparent: true,
+                opacity: 0.6,
+                wireframe: true
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+            
+            return { mesh };
+        }
+        
+        // Add a simple point light
+        function addLights(scene, color, intensity) {
+            const pointLight = new THREE.PointLight(color, intensity, 100);
+            pointLight.position.set(50, 50, 50);
+            scene.add(pointLight);
+        }
+
+        // Initialize all scenes with optimized parameters
+        const heroSceneData = initScene('three-canvas', 2000, 0xff0055, 0xff0055, 2, 0.4);
+        const gallerySceneData = initScene('gallery-canvas', 1000, 0xff5555, 0xff5555, 1.5, 0.2);
+        const contactSceneData = initScene('contact-canvas', 1000, 0x5500ff, 0x5500ff, 1.5, 0.15);
+
+        // Optimized animation loop with frame limiting
+        let lastTime = 0;
+        const frameRate = 1000 / 60; // Target 60 FPS
+        let isAnimating = true;
+        
+        function animate(currentTime) {
+            if (!isAnimating) return;
+            requestAnimationFrame(animate);
+            
+            const deltaTime = currentTime - lastTime;
+            if (deltaTime < frameRate) return;
+            lastTime = currentTime - (deltaTime % frameRate);
+            
+            // Update rotations and particle positions for each scene
+            if (heroSceneData) {
+                heroSceneData.torus.mesh.rotation.x += 0.002;
+                heroSceneData.torus.mesh.rotation.y += 0.003;
+                updateParticles(heroSceneData.particles, 400);
+                heroSceneData.renderer.render(heroSceneData.scene, heroSceneData.camera);
+            }
+            if (gallerySceneData) {
+                gallerySceneData.torus.mesh.rotation.x += 0.0015;
+                gallerySceneData.torus.mesh.rotation.y += 0.002;
+                updateParticles(gallerySceneData.particles, 200);
+                gallerySceneData.renderer.render(gallerySceneData.scene, gallerySceneData.camera);
+            }
+            if (contactSceneData) {
+                contactSceneData.torus.mesh.rotation.x += 0.001;
+                contactSceneData.torus.mesh.rotation.y += 0.0015;
+                updateParticles(contactSceneData.particles, 200);
+                contactSceneData.renderer.render(contactSceneData.scene, contactSceneData.camera);
+            }
+        }
+        
+        // Function to update particle positions
+        function updateParticles(particles, bounds) {
+            if (!particles || !particles.geometry || !particles.velocities) return;
+            const positions = particles.geometry.attributes.position.array;
+            const velocities = particles.velocities;
+            
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i] += velocities[i];
+                positions[i + 1] += velocities[i + 1];
+                positions[i + 2] += velocities[i + 2];
+                
+                if (Math.abs(positions[i]) > bounds) velocities[i] *= -1;
+                if (Math.abs(positions[i + 1]) > bounds) velocities[i + 1] *= -1;
+                if (Math.abs(positions[i + 2]) > bounds) velocities[i + 2] *= -1;
+            }
+            
+            particles.geometry.attributes.position.needsUpdate = true;
+        }
+        
+        // Start animation loop on window load
+        window.onload = function() {
+            animate(0);
+        };
+
+        // Pause animations when page is not visible
+        document.addEventListener('visibilitychange', () => {
+            isAnimating = !document.hidden;
+            if (isAnimating) animate(0);
         });
-      }, { rootMargin: '100px', threshold: 0.01 });
-      
-      document.querySelectorAll('.video-container').forEach(container => {
-        observer.observe(container);
-      });
-    }
 
-    function updateCarouselPosition() {
-      if (carouselItems.length === 0) return;
-      
-      // Preload videos around the new position
-      const preloadStart = Math.max(0, currentIndex - 1);
-      preloadVideos(preloadStart, 3);
-      
-      gsap.to(carouselInner, {
-        x: -currentIndex * carouselItems[0].offsetWidth,
-        duration: 0.4,
-        ease: "power2.out"
-      });
-      
-      // Pause videos that are not visible
-      videoElements.forEach((video, index) => {
-        if (Math.abs(index - currentIndex) > 1) {
-          if (video.element && !video.element.paused) {
-            video.element.pause();
-          }
-        }
-      });
-    }
+        // Window Resize with debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                
+                if (heroSceneData) {
+                    heroSceneData.camera.aspect = width / height;
+                    heroSceneData.camera.updateProjectionMatrix();
+                    heroSceneData.renderer.setSize(width, height);
+                }
+                if (gallerySceneData) {
+                    gallerySceneData.camera.aspect = width / height;
+                    gallerySceneData.camera.updateProjectionMatrix();
+                    gallerySceneData.renderer.setSize(width, height);
+                }
+                if (contactSceneData) {
+                    contactSceneData.camera.aspect = width / height;
+                    contactSceneData.camera.updateProjectionMatrix();
+                    contactSceneData.renderer.setSize(width, height);
+                }
+            }, 150);
+        });
 
-    // Debounced Carousel Navigation
-    document.getElementById('next-btn').addEventListener('click', () => {
-      if (isNavigating || filteredVideos.length === 0) return;
-      isNavigating = true;
-      currentIndex = (currentIndex + 1) % Math.ceil(filteredVideos.length);
-      updateCarouselPosition();
-      setTimeout(() => { isNavigating = false; }, 400);
-    });
+        // --- GSAP ANIMATIONS & CUSTOM CURSOR ---
 
-    document.getElementById('prev-btn').addEventListener('click', () => {
-      if (isNavigating || filteredVideos.length === 0) return;
-      isNavigating = true;
-      currentIndex = (currentIndex - 1 + Math.ceil(filteredVideos.length)) % Math.ceil(filteredVideos.length);
-      updateCarouselPosition();
-      setTimeout(() => { isNavigating = false; }, 400);
-    });
+        gsap.registerPlugin(ScrollTrigger);
 
-    // Video Filters with debounce
-    let filterTimeout;
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.dataset.filter === activeFilter) return;
-        clearTimeout(filterTimeout);
-        filterTimeout = setTimeout(() => {
-          // Pause all current videos before switching
-          videoElements.forEach(video => {
-            if (video.element && !video.element.paused) {
-              video.element.pause();
+        // Simple GSAP animations for key sections
+        gsap.from("#hero h1", { opacity: 0, y: 50, duration: 1 });
+        gsap.from("#hero p", { opacity: 0, y: 50, duration: 1, delay: 0.2 });
+        gsap.from("#hero a", { opacity: 0, y: 50, duration: 1, delay: 0.4 });
+        gsap.from("#gallery h2", { 
+            opacity: 0, 
+            y: 30, 
+            duration: 0.8, 
+            scrollTrigger: { trigger: "#gallery", start: "top 85%" } 
+        });
+
+        // Custom Cursor with GSAP for smooth movement
+        const cursor = document.getElementById('cursor');
+        const cursorX = { x: window.innerWidth / 2 };
+        const cursorY = { y: window.innerHeight / 2 };
+        
+        document.addEventListener('mousemove', (e) => {
+            cursorX.x = e.clientX;
+            cursorY.y = e.clientY;
+        });
+        
+        gsap.ticker.add(() => {
+            cursor.style.left = `${cursorX.x}px`;
+            cursor.style.top = `${cursorY.y}px`;
+        });
+        
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                gsap.to(cursor, { scale: 1.5, opacity: 0.8, duration: 0.15 });
+            });
+            el.addEventListener('mouseleave', () => {
+                gsap.to(cursor, { scale: 1, opacity: 0.5, duration: 0.15 });
+            });
+        });
+
+        // --- VIDEO CAROUSEL WITH LAZY LOADING ---
+
+        const carouselInner = document.getElementById('carousel-inner');
+        let currentIndex = 0;
+        let filteredVideos = [];
+        let activeFilter = 'all';
+        let isNavigating = false;
+        
+        // Preload the first few videos to improve initial experience
+        function preloadVideos(startIndex = 0, count = 3) {
+            const endIndex = Math.min(startIndex + count, filteredVideos.length);
+            for (let i = startIndex; i < endIndex; i++) {
+                const video = filteredVideos[i];
+                if (!video.preloaded) {
+                    const preloadLink = document.createElement('link');
+                    preloadLink.rel = 'preload';
+                    preloadLink.as = 'video';
+                    preloadLink.href = video.src;
+                    document.head.appendChild(preloadLink);
+                    video.preloaded = true;
+                }
             }
-          });
-          
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          renderCarousel(btn.dataset.filter);
-        }, 150);
-      });
-    });
-
-    // Initialize carousel with all videos
-    renderCarousel();
-
-    // Contact Popup
-    const getStartedBtn = document.getElementById('getStartedBtn');
-    const contactModal = document.getElementById('contactModal');
-
-    getStartedBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      contactModal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      gsap.from(contactModal, { opacity: 0, scale: 0.9, duration: 0.4 });
-    });
-
-    function closeContactModal() {
-      gsap.to(contactModal, { 
-        opacity: 0, 
-        scale: 0.9, 
-        duration: 0.3,
-        onComplete: () => {
-          contactModal.classList.add('hidden');
-          document.body.style.overflow = '';
         }
-      });
-    }
+        
+        // Renders the carousel based on the active filter
+        function renderCarousel(filter = 'all') {
+            carouselInner.innerHTML = '';
+            activeFilter = filter;
+            filteredVideos = filter === 'all' ? [...videos] : videos.filter(v => v.category === filter);
+            
+            if (filteredVideos.length === 0) {
+                carouselInner.innerHTML = '<p class="text-center text-gray-500 w-full">No videos found for this category.</p>';
+                document.getElementById('prev-btn').style.display = 'none';
+                document.getElementById('next-btn').style.display = 'none';
+                return;
+            }
 
-    contactModal.addEventListener('click', (e) => {
-      if (e.target === contactModal) closeContactModal();
-    });
-    
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !contactModal.classList.contains('hidden')) closeContactModal();
-    });
+            document.getElementById('prev-btn').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
 
-    // Pause videos when they're not visible
-    const videoObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const video = entry.target;
-        if (entry.isIntersecting) {
-          video.play().catch(e => console.log("Autoplay prevented:", e));
-        } else {
-          if (!video.paused) video.pause();
+            preloadVideos(0, 3);
+            
+            filteredVideos.forEach((video, index) => {
+                const card = document.createElement('div');
+                card.className = 'group w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer will-change';
+                
+                card.innerHTML = `
+                    <div class="relative overflow-hidden rounded-lg aspect-video">
+                        <div class="video-container" data-index="${index}">
+                            <div class="video-placeholder bg-gradient-to-br from-gray-900 to-gray-800">
+                                <div class="video-loading"></div>
+                            </div>
+                            <video class="lazy" muted playsinline loop poster="${video.poster}" data-src="${video.src}">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <p class="text-white text-lg font-semibold">${video.title}</p>
+                        </div>
+                    </div>
+                `;
+                
+                carouselInner.appendChild(card);
+            });
+            
+            currentIndex = 0;
+            updateCarouselPosition();
         }
-      });
-    }, { threshold: 0.1 });
 
-    // Observe all videos after they're loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('video').forEach(video => {
-        videoObserver.observe(video);
-      });
-    });
-  </script>
+        // Lazy loads videos when they enter the viewport
+        const lazyVideoObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const videoContainer = entry.target;
+                    const video = videoContainer.querySelector('video.lazy');
+                    
+                    if (video && !video.src) {
+                        video.src = video.dataset.src;
+                        video.load();
+                        
+                        video.addEventListener('canplay', () => {
+                            video.play().catch(e => console.log("Autoplay prevented:", e));
+                            gsap.to(videoContainer.querySelector('.video-placeholder'), { 
+                                opacity: 0, 
+                                duration: 0.5, 
+                                onComplete: () => videoContainer.querySelector('.video-placeholder').remove() 
+                            });
+                        }, { once: true });
+                        
+                        video.addEventListener('error', () => {
+                            console.error(`Failed to load video: ${video.dataset.src}`);
+                            videoContainer.querySelector('.video-placeholder').innerHTML = '<p class="text-red-500">Video failed to load</p>';
+                        }, { once: true });
+                    }
+                    // Stop observing once the video is loaded
+                    observer.unobserve(videoContainer);
+                }
+            });
+        }, { rootMargin: '100px', threshold: 0.1 });
+
+        // Pauses videos when they leave the carousel viewport
+        const playPauseObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target.querySelector('video');
+                if (video) {
+                    if (entry.isIntersecting) {
+                        video.play().catch(e => console.log("Autoplay prevented:", e));
+                    } else {
+                        if (!video.paused) video.pause();
+                    }
+                }
+            });
+        }, { threshold: 0.5, root: document.getElementById('video-carousel') });
+
+        // Updates the carousel position with a GSAP tween
+        function updateCarouselPosition() {
+            const firstItem = carouselInner.querySelector('.group');
+            if (!firstItem) return;
+            
+            const itemWidth = firstItem.offsetWidth + 16; // width + mx-2 (8px * 2)
+            gsap.to(carouselInner, {
+                x: -currentIndex * itemWidth,
+                duration: 0.4,
+                ease: "power2.out"
+            });
+        }
+
+        // Debounced Carousel Navigation
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (isNavigating || filteredVideos.length <= 1) return;
+                isNavigating = true;
+                currentIndex = (currentIndex - 1 + filteredVideos.length) % filteredVideos.length;
+                updateCarouselPosition();
+                setTimeout(() => { isNavigating = false; }, 400);
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (isNavigating || filteredVideos.length <= 1) return;
+                isNavigating = true;
+                currentIndex = (currentIndex + 1) % filteredVideos.length;
+                updateCarouselPosition();
+                setTimeout(() => { isNavigating = false; }, 400);
+            });
+        }
+
+        // Video Filters with debounce
+        let filterTimeout;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn.dataset.filter === activeFilter) return;
+                
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                clearTimeout(filterTimeout);
+                filterTimeout = setTimeout(() => {
+                    renderCarousel(btn.dataset.filter);
+                }, 150);
+            });
+        });
+
+        // Initialize carousel on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCarousel();
+            // Start observing videos after the carousel is rendered
+            const videoContainers = document.querySelectorAll('.video-container');
+            videoContainers.forEach(container => {
+                lazyVideoObserver.observe(container);
+                playPauseObserver.observe(container);
+            });
+        });
+
+        // --- CONTACT MODAL ---
+
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        const contactModal = document.getElementById('contactModal');
+
+        getStartedBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            contactModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            gsap.from(contactModal, { opacity: 0, scale: 0.9, duration: 0.4 });
+        });
+
+        function closeContactModal() {
+            gsap.to(contactModal, { 
+                opacity: 0, 
+                scale: 0.9, 
+                duration: 0.3,
+                onComplete: () => {
+                    contactModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        contactModal.addEventListener('click', (e) => {
+            if (e.target === contactModal) closeContactModal();
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !contactModal.classList.contains('hidden')) closeContactModal();
+        });
+
+    </script>
 </body>
 </html>
