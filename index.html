@@ -3,46 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DRIP.CGI - Premier AI-powered marketing agency specializing in hyper-realistic CGI ad videos, 3D motion graphics, and VFX. Transform your brand with stunning visual experiences.">
-    <meta name="keywords" content="DRIP.CGI, AI advertising, CGI, 3D motion graphics, VFX, marketing agency, video ads, digital marketing">
-    <meta name="author" content="DRIP.CGI">
+    <meta name="description" content="DRIP.CGI - Premier AI-powered marketing agency specializing in hyper-realistic CGI ad videos, 3D motion graphics, and VFX.">
+    <meta name="keywords" content="DRIP.CGI, AI advertising, CGI, 3D motion graphics, VFX, marketing agency">
     <title>DRIP.CGI - AI-Powered Hyper-Realistic CGI Ad Experiences</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23ec4899'>D</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-size: 100%;
-            line-height: 1.15;
-            -webkit-tap-highlight-color: transparent;
-        }
-        html {
-            font-size: 16px;
-            scroll-behavior: smooth;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
-            background-color: #000;
-        }
-        .filter-btn.active {
-            background: linear-gradient(to right, #dc2626, #ec4899);
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #dc2626, #ec4899); border-radius: 4px; }
+        
+        .filter-btn.active { 
+            background: linear-gradient(to right, #dc2626, #ec4899); 
             box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
-            transition: all 0.3s ease-in-out;
         }
-        .nav-link {
-            position: relative;
-        }
+        
+        .nav-link { position: relative; transition: color 0.3s ease; }
         .nav-link::after {
             content: '';
             position: absolute;
@@ -53,133 +40,80 @@
             background: linear-gradient(to right, #dc2626, #ec4899);
             transition: width 0.3s ease;
         }
-        .nav-link:hover::after {
-            width: 100%;
-        }
-        canvas {
-            display: block;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            width: 100%;
-            height: 100%;
-        }
-        .transform-gpu {
-            transform: translate3d(0, 0, 0);
-        }
-        .will-change {
-            will-change: transform, opacity, filter;
-        }
-        .backface-hidden {
-            backface-visibility: hidden;
-        }
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
-            }
-        }
+        .nav-link:hover::after { width: 100%; }
+        
+        /* Video Container Styles */
         .video-container {
             position: relative;
             width: 100%;
             padding-bottom: 56.25%;
             overflow: hidden;
-            height: 0;
-            cursor: pointer;
+            border-radius: 12px;
+            background: #111;
         }
+        
         .video-container video {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: block;
+            object-fit: cover;
             opacity: 0;
-            transform: scale(1.1);
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transition: opacity 0.5s ease;
         }
+        
         .video-placeholder {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #222;
+            background: linear-gradient(45deg, #1a1a1a, #222);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
-            font-size: 14px;
-            animation: pulse-bg 2s infinite;
+            flex-direction: column;
         }
-        @keyframes pulse-bg {
-            0% { background: #222; }
-            50% { background: #1a1a1a; }
-            100% { background: #222; }
-        }
-        .video-loading {
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-top: 5px solid #ec4899;
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #ec4899;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-bottom: 10px;
         }
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        .team-card:hover img {
-            transform: scale(1.1);
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
         }
-        .service-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3);
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
-        .testimonial-card {
-            background: linear-gradient(145deg, #1a1a1a, #222);
-            box-shadow: 5px 5px 15px #151515, -5px -5px 15px #2f2f2f;
+        
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            pointer-events: none;
         }
-        .process-step::before {
-            content: '';
-            position: absolute;
-            left: 25px;
-            top: 60px;
-            height: calc(100% - 60px);
-            width: 2px;
-            background: linear-gradient(to bottom, #dc2626, #ec4899);
-        }
-        .contact-info {
-            display: none;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        .contact-info.active {
-            display: block;
-        }
-        .performance-optimized {
-            transform: translateZ(0);
-            backface-visibility: hidden;
-            perspective: 1000px;
-        }
-        .hardware-accelerate {
-            transform: translate3d(0,0,0);
-        }
-        .contain-strict {
-            contain: strict;
-        }
-        .content-visibility-auto {
-            content-visibility: auto;
-        }
+        
         .mobile-menu {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(10px);
             z-index: 60;
             display: flex;
@@ -187,28 +121,61 @@
             align-items: center;
             justify-content: center;
             transform: translateX(100%);
-            transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
+            transition: transform 0.3s cubic-bezier(0.86, 0, 0.07, 1);
         }
+        
         .mobile-menu.open {
             transform: translateX(0);
         }
+        
+        .team-card, .service-card, .testimonial-card {
+            transition: all 0.3s ease;
+            backface-visibility: hidden;
+        }
+        
+        .team-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(236, 72, 153, 0.3);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(236, 72, 153, 0.2);
+        }
+        
+        .process-step::before {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 48px;
+            height: calc(100% - 48px);
+            width: 2px;
+            background: linear-gradient(to bottom, #dc2626, #ec4899);
+        }
+        
+        @media (max-width: 768px) {
+            .process-step::before {
+                left: 20px;
+            }
+        }
     </style>
 </head>
-<body class="bg-black text-white font-sans">
-    <div id="cursor" class="fixed w-6 h-6 rounded-full bg-red-500 opacity-50 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen z-50 will-change-transform"></div>
+<body>
+    <!-- Custom Cursor -->
+    <div id="cursor" class="fixed w-4 h-4 bg-pink-500 rounded-full pointer-events-none z-50 mix-blend-difference hidden md:block"></div>
 
-    <!-- Main Navigation Bar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 py-4 px-4 backdrop-blur-sm transform-gpu will-change-transform performance-optimized">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md py-4 px-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="#hero" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">DRIP.CGI</a>
+            <a href="#hero" class="text-2xl font-bold bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">DRIP.CGI</a>
             
             <!-- Desktop Menu -->
-            <div class="hidden md:flex space-x-6">
-                <a href="#hero" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu will-change-transform">Home</a>
-                <a href="#about" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu will-change-transform">About</a>
-                <a href="#services" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu will-change-transform">Services</a>
-                <a href="#gallery" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu will-change-transform">Portfolio</a>
-                <a href="#contact" class="nav-link text-lg hover:text-red-500 transition-colors transform-gpu will-change-transform">Contact</a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#hero" class="nav-link text-lg hover:text-red-500 transition">Home</a>
+                <a href="#about" class="nav-link text-lg hover:text-red-500 transition">About</a>
+                <a href="#services" class="nav-link text-lg hover:text-red-500 transition">Services</a>
+                <a href="#gallery" class="nav-link text-lg hover:text-red-500 transition">Portfolio</a>
+                <a href="#contact" class="nav-link text-lg hover:text-red-500 transition">Contact</a>
             </div>
 
             <!-- Mobile Menu Toggle -->
@@ -224,11 +191,11 @@
             <i class="fas fa-times"></i>
         </button>
         <nav class="flex flex-col items-center space-y-8 text-3xl font-bold">
-            <a href="#hero" class="nav-link-mobile" data-section="hero">Home</a>
-            <a href="#about" class="nav-link-mobile" data-section="about">About</a>
-            <a href="#services" class="nav-link-mobile" data-section="services">Services</a>
-            <a href="#gallery" class="nav-link-mobile" data-section="gallery">Portfolio</a>
-            <a href="#contact" class="nav-link-mobile" data-section="contact">Contact</a>
+            <a href="#hero" class="nav-link-mobile hover:text-pink-500 transition">Home</a>
+            <a href="#about" class="nav-link-mobile hover:text-pink-500 transition">About</a>
+            <a href="#services" class="nav-link-mobile hover:text-pink-500 transition">Services</a>
+            <a href="#gallery" class="nav-link-mobile hover:text-pink-500 transition">Portfolio</a>
+            <a href="#contact" class="nav-link-mobile hover:text-pink-500 transition">Contact</a>
         </nav>
     </div>
 
@@ -236,42 +203,37 @@
     <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
         <canvas id="three-canvas" class="absolute inset-0"></canvas>
         <div class="relative z-10 text-center px-4">
-            <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">DRIP.CGI</h1>
-            <p class="text-xl md:text-3xl mt-4 opacity-80 max-w-2xl mx-auto">Transforming Brands with AI-Powered Hyper-Realistic CGI and Immersive Visual Storytelling</p>
-            <div class="mt-8 space-x-4">
-                <a href="#gallery" class="inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all">Explore Portfolio</a>
-            </div>
+            <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 mb-6">DRIP.CGI</h1>
+            <p class="text-xl md:text-3xl mb-8 opacity-90 max-w-3xl mx-auto leading-relaxed">Transforming Brands with AI-Powered Hyper-Realistic CGI and Immersive Visual Storytelling</p>
+            <a href="#gallery" class="inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-4 px-12 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/50">Explore Portfolio</a>
         </div>
     </section>
 
     <!-- About Section -->
-    <section id="about" class="py-20 px-4 relative content-visibility-auto">
+    <section id="about" class="py-20 px-4 relative">
         <canvas id="about-canvas" class="absolute inset-0 z-[-1]"></canvas>
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">About DRIP.CGI</h2>
-            <p class="text-xl text-center max-w-3xl mx-auto mb-12 opacity-80">We are a cutting-edge marketing agency specializing in AI-powered CGI, VFX, and 3D motion graphics. Our team combines creativity with advanced technology to deliver stunning visual experiences that captivate audiences and elevate brands.</p>
+            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">About DRIP.CGI</h2>
+            <p class="text-xl text-center max-w-4xl mx-auto mb-16 opacity-90 leading-relaxed">We are a cutting-edge marketing agency specializing in AI-powered CGI, VFX, and 3D motion graphics. Our team combines creativity with advanced technology to deliver stunning visual experiences that captivate audiences and elevate brands.</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="team-card relative overflow-hidden rounded-lg h-60 w-full md:w-auto performance-optimized">
-                    <!-- Placeholder image with object-cover to ensure it fills the container without distortion -->
-                    <img src="me.png" alt="Team Member Ahsan Javed" class="w-full h-full object-cover transition-transform duration-300 hardware-accelerate">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-                        <h3 class="text-xl font-semibold">Ahsan Javed</h3>
+                <div class="team-card relative overflow-hidden rounded-lg h-80 bg-gray-900">
+                    <img src="me.png" alt="Team Member Ahsan Javed" class="w-full h-full object-cover" loading="lazy">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6">
+                        <h3 class="text-2xl font-semibold mb-1">Ahsan Javed</h3>
                         <p class="text-gray-300">Creative Director</p>
                     </div>
                 </div>
-                <div class="team-card relative overflow-hidden rounded-lg h-60 w-full md:w-auto performance-optimized">
-                    <!-- Placeholder image with object-cover to ensure it fills the container without distortion -->
-                    <img src="VFX.png" alt="Team Member M.Hamza" class="w-full h-full object-cover transition-transform duration-300 hardware-accelerate">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-                        <h3 class="text-xl font-semibold">M.Hamza</h3>
+                <div class="team-card relative overflow-hidden rounded-lg h-80 bg-gray-900">
+                    <img src="VFX.png" alt="Team Member M.Hamza" class="w-full h-full object-cover" loading="lazy">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6">
+                        <h3 class="text-2xl font-semibold mb-1">M.Hamza</h3>
                         <p class="text-gray-300">Lead VFX Artist</p>
                     </div>
                 </div>
-                <div class="team-card relative overflow-hidden rounded-lg h-60 w-full md:w-auto performance-optimized">
-                    <!-- Placeholder image with object-cover to ensure it fills the container without distortion -->
-                    <img src="ai.png" alt="Team Member Ahmed Khan" class="w-full h-full object-cover transition-transform duration-300 hardware-accelerate">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-                        <h3 class="text-xl font-semibold">Ahmed Khan</h3>
+                <div class="team-card relative overflow-hidden rounded-lg h-80 bg-gray-900">
+                    <img src="ai.png" alt="Team Member Ahmed Khan" class="w-full h-full object-cover" loading="lazy">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6">
+                        <h3 class="text-2xl font-semibold mb-1">Ahmed Khan</h3>
                         <p class="text-gray-300">AI Specialist</p>
                     </div>
                 </div>
@@ -280,46 +242,52 @@
     </section>
 
     <!-- Services Section -->
-    <section id="services" class="py-20 px-4 relative bg-gray-900 content-visibility-auto">
+    <section id="services" class="py-20 px-4 relative bg-gray-900">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Our Services</h2>
+            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Our Services</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="service-card bg-gray-800 p-6 rounded-lg transition-all duration-300 transform-gpu will-change performance-optimized">
-                    <i class="fas fa-video text-4xl text-pink-500 mb-4"></i>
-                    <h3 class="text-2xl font-semibold mb-2">AI-Powered CGI Ads</h3>
-                    <p class="text-gray-300">Create hyper-realistic advertisements using AI, delivering unparalleled visual quality and engagement.</p>
+                <div class="service-card bg-gray-800 p-8 rounded-xl hover:bg-gray-750">
+                    <i class="fas fa-video text-5xl text-pink-500 mb-6"></i>
+                    <h3 class="text-2xl font-semibold mb-4">AI-Powered CGI Ads</h3>
+                    <p class="text-gray-300 leading-relaxed">Create hyper-realistic advertisements using AI, delivering unparalleled visual quality and engagement.</p>
                 </div>
-                <div class="service-card bg-gray-800 p-6 rounded-lg transition-all duration-300 transform-gpu will-change performance-optimized">
-                    <i class="fas fa-film text-4xl text-pink-500 mb-4"></i>
-                    <h3 class="text-2xl font-semibold mb-2">VFX & Motion Graphics</h3>
-                    <p class="text-gray-300">Transform your vision with stunning visual effects and dynamic motion graphics that captivate your audience.</p>
+                <div class="service-card bg-gray-800 p-8 rounded-xl hover:bg-gray-750">
+                    <i class="fas fa-film text-5xl text-pink-500 mb-6"></i>
+                    <h3 class="text-2xl font-semibold mb-4">VFX & Motion Graphics</h3>
+                    <p class="text-gray-300 leading-relaxed">Transform your vision with stunning visual effects and dynamic motion graphics that captivate your audience.</p>
                 </div>
-                <div class="service-card bg-gray-800 p-6 rounded-lg transition-all duration-300 transform-gpu will-change performance-optimized">
-                    <i class="fas fa-robot text-4xl text-pink-500 mb-4"></i>
-                    <h3 class="text-2xl font-semibold mb-2">AI Content Strategy</h3>
-                    <p class="text-gray-300">Leverage AI-driven insights to craft compelling content strategies that resonate with your target audience.</p>
+                <div class="service-card bg-gray-800 p-8 rounded-xl hover:bg-gray-750">
+                    <i class="fas fa-robot text-5xl text-pink-500 mb-6"></i>
+                    <h3 class="text-2xl font-semibold mb-4">AI Content Strategy</h3>
+                    <p class="text-gray-300 leading-relaxed">Leverage AI-driven insights to craft compelling content strategies that resonate with your target audience.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Gallery Section -->
-    <section id="gallery" class="py-20 px-4 relative content-visibility-auto">
+    <!-- Portfolio/Gallery Section -->
+    <section id="gallery" class="py-20 px-4 relative">
         <canvas id="gallery-canvas" class="absolute inset-0 z-[-1]"></canvas>
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Our Portfolio</h2>
-            <div class="flex justify-center mb-8 space-x-4 flex-wrap">
-                <button class="filter-btn active bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu will-change performance-optimized" data-filter="all">All</button>
-                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu will-change performance-optimized" data-filter="Motion Graphics">Motion Graphics</button>
-                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu will-change performance-optimized" data-filter="VFX">VFX</button>
-                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform-gpu will-change performance-optimized" data-filter="3D Ads">3D Ads</button>
+            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Our Portfolio</h2>
+            
+            <!-- Filter Buttons -->
+            <div class="flex justify-center mb-8 space-x-2 flex-wrap">
+                <button class="filter-btn active bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 m-1" data-filter="all">All</button>
+                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 m-1" data-filter="Motion Graphics">Motion Graphics</button>
+                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 m-1" data-filter="VFX">VFX</button>
+                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 m-1" data-filter="3D Ads">3D Ads</button>
             </div>
+            
+            <!-- Video Carousel -->
             <div id="video-carousel" class="relative max-w-6xl mx-auto overflow-hidden">
-                <div id="carousel-inner" class="flex transition-transform duration-500 ease-in-out will-change-transform"></div>
-                <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu will-change-transform performance-optimized">
+                <div id="carousel-inner" class="flex transition-transform duration-500 ease-out"></div>
+                
+                <!-- Navigation Buttons -->
+                <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-900/80 hover:bg-gray-700 p-3 rounded-full z-10 transition-colors duration-300 ml-2">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full hover:bg-gray-700 z-10 transition-colors duration-300 transform-gpu will-change-transform performance-optimized">
+                <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900/80 hover:bg-gray-700 p-3 rounded-full z-10 transition-colors duration-300 mr-2">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
@@ -327,23 +295,23 @@
     </section>
 
     <!-- Testimonials Section -->
-    <section id="testimonials" class="py-20 px-4 relative bg-gray-900 content-visibility-auto">
+    <section id="testimonials" class="py-20 px-4 relative bg-gray-900">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">What Our Clients Say</h2>
+            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">What Our Clients Say</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="testimonial-card p-6 rounded-lg performance-optimized">
-                    <p class="text-gray-300 mb-4">"DRIP.CGI transformed our brand with their strategy. The results were beyond our expectations!"</p>
-                    <p class="font-semibold">M.Uzair</p>
+                <div class="testimonial-card bg-gray-800 p-8 rounded-xl">
+                    <p class="text-gray-300 mb-6 italic text-lg">"DRIP.CGI transformed our brand with their strategy. The results were beyond our expectations!"</p>
+                    <p class="font-semibold text-xl">M.Uzair</p>
                     <p class="text-gray-400">Marketing Director, TechTrend</p>
                 </div>
-                <div class="testimonial-card p-6 rounded-lg performance-optimized">
-                    <p class="text-gray-300 mb-4">"Their VFX work is unparalleled. Our campaign went viral thanks to their creativity."</p>
-                    <p class="font-semibold">Danish Chand</p>
+                <div class="testimonial-card bg-gray-800 p-8 rounded-xl">
+                    <p class="text-gray-300 mb-6 italic text-lg">"Their VFX work is unparalleled. Our campaign went viral thanks to their creativity."</p>
+                    <p class="font-semibold text-xl">Danish Chand</p>
                     <p class="text-gray-400">CEO, Visionary Brands</p>
                 </div>
-                <div class="testimonial-card p-6 rounded-lg performance-optimized">
-                    <p class="text-gray-300 mb-4">"The AI-driven content strategy from DRIP.CGI doubled our engagement rates."</p>
-                    <p class="font-semibold">Bushra</p>
+                <div class="testimonial-card bg-gray-800 p-8 rounded-xl">
+                    <p class="text-gray-300 mb-6 italic text-lg">"The AI-driven content strategy from DRIP.CGI doubled our engagement rates."</p>
+                    <p class="font-semibold text-xl">Bushra</p>
                     <p class="text-gray-400">Marketing Manager, Innovate Co.</p>
                 </div>
             </div>
@@ -351,82 +319,84 @@
     </section>
 
     <!-- Process Section -->
-    <section id="process" class="py-20 px-4 relative content-visibility-auto">
+    <section id="process" class="py-20 px-4 relative">
         <canvas id="process-canvas" class="absolute inset-0 z-[-1]"></canvas>
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Our Creative Process</h2>
-            <div class="space-y-12">
-                <div class="process-step relative pl-16 performance-optimized">
-                    <div class="flex items-center mb-2">
+            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Our Creative Process</h2>
+            <div class="space-y-12 max-w-4xl mx-auto">
+                <div class="process-step relative pl-16">
+                    <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold">1</div>
-                        <h3 class="ml-4 text-2xl font-semibold">Discovery & Planning</h3>
+                        <h3 class="ml-6 text-2xl font-semibold">Discovery & Planning</h3>
                     </div>
-                    <p class="text-gray-300">We collaborate with you to understand your brand, goals, and audience to create a tailored strategy.</p>
+                    <p class="text-gray-300 ml-18">We collaborate with you to understand your brand, goals, and audience to create a tailored strategy.</p>
                 </div>
-                <div class="process-step relative pl-16 performance-optimized">
-                    <div class="flex items-center mb-2">
+                <div class="process-step relative pl-16">
+                    <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold">2</div>
-                        <h3 class="ml-4 text-2xl font-semibold">Concept & Storyboarding</h3>
+                        <h3 class="ml-6 text-2xl font-semibold">Concept & Storyboarding</h3>
                     </div>
-                    <p class="text-gray-300">Our team develops creative concepts and detailed storyboards to visualize the final product.</p>
+                    <p class="text-gray-300 ml-18">Our team develops creative concepts and detailed storyboards to visualize the final product.</p>
                 </div>
-                <div class="process-step relative pl-16 performance-optimized">
-                    <div class="flex items-center mb-2">
+                <div class="process-step relative pl-16">
+                    <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold">3</div>
-                        <h3 class="ml-4 text-2xl font-semibold">Production & Rendering</h3>
+                        <h3 class="ml-6 text-2xl font-semibold">Production & Rendering</h3>
                     </div>
-                    <p class="text-gray-300">Using AI and advanced tools, we create hyper-realistic CGI and VFX that bring your vision to life.</p>
+                    <p class="text-gray-300 ml-18">Using AI and advanced tools, we create hyper-realistic CGI and VFX that bring your vision to life.</p>
                 </div>
-                <div class="process-step relative pl-16 performance-optimized">
-                    <div class="flex items-center mb-2">
+                <div class="process-step relative pl-16">
+                    <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold">4</div>
-                        <h3 class="ml-4 text-2xl font-semibold">Delivery & Optimization</h3>
+                        <h3 class="ml-6 text-2xl font-semibold">Delivery & Optimization</h3>
                     </div>
-                    <p class="text-gray-300">We deliver the final assets and optimize them for maximum impact across all platforms.</p>
+                    <p class="text-gray-300 ml-18">We deliver the final assets and optimize them for maximum impact across all platforms.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="py-20 px-4 relative h-screen flex flex-col items-center justify-center content-visibility-auto">
+    <section id="contact" class="py-20 px-4 relative">
         <canvas id="contact-canvas" class="absolute inset-0 z-[-1]"></canvas>
-        <h2 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 transform-gpu">Connect with Us</h2>
-        <button id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-10 rounded-full text-lg font-semibold transition-all performance-optimized">Get Started</button>
-        <div id="contactInfo" class="contact-info">
-            <div class="flex justify-center items-center space-x-4 transform-gpu">
-                <i class="fab fa-instagram text-2xl text-pink-500 transform-gpu"></i>
-                <a href="https://instagram.com/drip.cgii" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">drip.cgi</a>
-            </div>
-            <div class="flex justify-center items-center space-x-4 mt-4 transform-gpu">
-                <i class="fas fa-envelope text-2xl text-green-500 transform-gpu"></i>
-                <a href="mailto:beingahsan12@gmail.com" class="text-blue-400 hover:text-blue-300 transition-colors duration-300 transform-gpu">beingahsan12@gmail.com</a>
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-5xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Connect with Us</h2>
+            <p class="text-xl mb-8 opacity-90">Ready to transform your brand? Let's create something extraordinary together.</p>
+            <button id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-4 px-12 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/50">Get Started</button>
+            <div id="contactInfo" class="mt-8 space-y-4 hidden">
+                <div class="flex justify-center items-center space-x-4">
+                    <i class="fab fa-instagram text-3xl text-pink-500"></i>
+                    <a href="https://instagram.com/drip.cgii" target="_blank" class="text-pink-400 hover:text-pink-300 transition text-xl">@drip.cgi</a>
+                </div>
+                <div class="flex justify-center items-center space-x-4">
+                    <i class="fas fa-envelope text-3xl text-green-500"></i>
+                    <a href="mailto:beingahsan12@gmail.com" class="text-blue-400 hover:text-blue-300 transition text-xl">beingahsan12@gmail.com</a>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 py-12 px-4 content-visibility-auto">
+    <footer class="bg-gray-900 py-12 px-4">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-                <h3 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 mb-4">DRIP.CGI</h3>
+                <h3 class="text-2xl font-bold bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent mb-4">DRIP.CGI</h3>
                 <p class="text-gray-300">Crafting the future of advertising with AI-powered CGI and VFX.</p>
             </div>
             <div>
                 <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="#about" class="text-gray-300 hover:text-pink-500 transition-colors">About Us</a></li>
-                    <li><a href="#services" class="text-gray-300 hover:text-pink-500 transition-colors">Services</a></li>
-                    <li><a href="#gallery" class="text-gray-300 hover:text-pink-500 transition-colors">Portfolio</a></li>
-                    <li><a href="#contact" class="text-gray-300 hover:text-pink-500 transition-colors">Contact</a></li>
+                    <li><a href="#about" class="text-gray-300 hover:text-pink-500 transition">About Us</a></li>
+                    <li><a href="#services" class="text-gray-300 hover:text-pink-500 transition">Services</a></li>
+                    <li><a href="#gallery" class="text-gray-300 hover:text-pink-500 transition">Portfolio</a></li>
+                    <li><a href="#contact" class="text-gray-300 hover:text-pink-500 transition">Contact</a></li>
                 </ul>
             </div>
             <div>
                 <h3 class="text-xl font-semibold mb-4">Connect</h3>
                 <ul class="space-y-2">
-                    <li><a href="https://instagram.com/drip.cgii" target="_blank" class="text-gray-300 hover:text-pink-500 transition-colors">Instagram</a></li>
-                    <li><a href="mailto:beingahsan12@gmail.com" class="text-gray-300 hover:text-pink-500 transition-colors">Email</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-pink-500 transition-colors">LinkedIn</a></li>
+                    <li><a href="https://instagram.com/drip.cgii" target="_blank" class="text-gray-300 hover:text-pink-500 transition">Instagram</a></li>
+                    <li><a href="mailto:beingahsan12@gmail.com" class="text-gray-300 hover:text-pink-500 transition">Email</a></li>
                 </ul>
             </div>
         </div>
@@ -436,509 +406,267 @@
     </footer>
 
     <script>
-        // Performance optimizations utilities
-        const perf = {
-            debounce: function(func, wait, immediate) {
-                let timeout;
-                return function() {
-                    const context = this, args = arguments;
-                    const later = function() {
-                        timeout = null;
-                        if (!immediate) func.apply(context, args);
-                    };
-                    const callNow = immediate && !timeout;
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                    if (callNow) func.apply(context, args);
-                };
-            },
-            throttle: function(func, limit) {
-                let lastFunc;
-                let lastRan;
-                return function() {
-                    const context = this;
-                    const args = arguments;
-                    if (!lastRan) {
-                        func.apply(context, args);
-                        lastRan = Date.now();
-                    } else {
-                        clearTimeout(lastFunc);
-                        lastFunc = setTimeout(function() {
-                            if ((Date.now() - lastRan) >= limit) {
-                                func.apply(context, args);
-                                lastRan = Date.now();
-                            }
-                        }, limit - (Date.now() - lastRan));
-                    }
-                }
-            }
-        };
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        if (cursor && window.innerWidth > 768) {
+            document.addEventListener('mousemove', (e) => {
+                gsap.to(cursor, {
+                    x: e.clientX - 8,
+                    y: e.clientY - 8,
+                    duration: 0.1
+                });
+            });
 
-        // Initialize Three.js scenes
-        function initScene(canvasId, particleCount, torusColor, particleColor, particleSize, particleSpeed) {
+            document.querySelectorAll('a, button, .service-card, .team-card').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    gsap.to(cursor, { scale: 1.5, duration: 0.2 });
+                });
+                el.addEventListener('mouseleave', () => {
+                    gsap.to(cursor, { scale: 1, duration: 0.2 });
+                });
+            });
+        }
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Three.js Backgrounds
+        function createBackground(canvasId, color) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
-            
-            const renderer = new THREE.WebGLRenderer({
-                canvas,
-                antialias: true,
-                alpha: true,
-                powerPreference: "high-performance",
-                logarithmicDepthBuffer: true
-            });
-            
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.outputEncoding = THREE.sRGBEncoding;
-            renderer.autoClear = false;
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
 
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.z = 150;
 
-            const particles = createParticles(scene, particleCount, particleColor, particleSize, particleSpeed);
-            const torus = createTorusKnot(scene, torusColor);
-            addLights(scene, torusColor, 1);
+            // Particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 600;
+            const posArray = new Float32Array(particlesCount * 3);
             
-            return { scene, camera, renderer, particles, torus };
-        }
-
-        function createParticles(scene, count, color, size, speed) {
-            const geometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(count * 3);
-            const velocities = new Float32Array(count * 3);
-            const scales = new Float32Array(count);
-            
-            for (let i = 0; i < count; i++) {
-                const i3 = i * 3;
-                positions[i3] = (Math.random() - 0.5) * 800;
-                positions[i3 + 1] = (Math.random() - 0.5) * 800;
-                positions[i3 + 2] = (Math.random() - 0.5) * 800;
-                velocities[i3] = (Math.random() - 0.5) * speed;
-                velocities[i3 + 1] = (Math.random() - 0.5) * speed;
-                velocities[i3 + 2] = (Math.random() - 0.5) * speed;
-                scales[i] = Math.random() * 0.5 + 0.5;
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 500;
             }
             
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
-            
-            const material = new THREE.PointsMaterial({
-                size: size,
-                color: new THREE.Color(color),
-                transparent: true,
-                opacity: 0.5,
-                blending: THREE.AdditiveBlending,
-                sizeAttenuation: true,
-                depthWrite: false
-            });
-            
-            const particles = new THREE.Points(geometry, material);
-            scene.add(particles);
-            
-            return { particles, geometry, velocities };
-        }
-        
-        function createTorusKnot(scene, color) {
-            const geometry = new THREE.TorusKnotGeometry(20, 3, 80, 12);
-            const material = new THREE.MeshBasicMaterial({
-                color: new THREE.Color(color),
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 1.5,
+                color: color,
                 transparent: true,
                 opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            // Torus
+            const torusGeometry = new THREE.TorusGeometry(25, 4, 16, 100);
+            const torusMaterial = new THREE.MeshBasicMaterial({
+                color: color,
                 wireframe: true,
-                depthWrite: false
+                transparent: true,
+                opacity: 0.3
             });
-            
-            const mesh = new THREE.Mesh(geometry, material);
-            scene.add(mesh);
-            
-            return { mesh };
-        }
-        
-        function addLights(scene, color, intensity) {
-            const pointLight = new THREE.PointLight(color, intensity, 100);
-            pointLight.position.set(50, 50, 50);
-            scene.add(pointLight);
-        }
+            const torus = new THREE.Mesh(torusGeometry, torusMaterial);
+            scene.add(torus);
 
-        const heroSceneData = initScene('three-canvas', 1500, 0xff0055, 0xff0055, 2, 0.4);
-        const aboutSceneData = initScene('about-canvas', 1200, 0xff3333, 0xff3333, 1.8, 0.3);
-        const gallerySceneData = initScene('gallery-canvas', 800, 0xff5555, 0xff5555, 1.5, 0.2);
-        const processSceneData = initScene('process-canvas', 1000, 0xff7777, 0xff7777, 1.7, 0.25);
-        const contactSceneData = initScene('contact-canvas', 800, 0x5500ff, 0x5500ff, 1.5, 0.15);
-
-        let lastTime = 0;
-        const frameRate = 1000 / 60;
-        let isAnimating = true;
-        let animationFrameId = null;
-        
-        function animate(currentTime) {
-            if (!isAnimating) return;
-            animationFrameId = requestAnimationFrame(animate);
-            
-            const deltaTime = currentTime - lastTime;
-            if (deltaTime < frameRate) return;
-            lastTime = currentTime - (deltaTime % frameRate);
-            
-            // Check if element is in viewport before rendering its canvas
-            const sections = [
-                { id: 'hero', data: heroSceneData },
-                { id: 'about', data: aboutSceneData },
-                { id: 'gallery', data: gallerySceneData },
-                { id: 'process', data: processSceneData },
-                { id: 'contact', data: contactSceneData }
-            ];
-
-            sections.forEach(({ id, data }) => {
-                if (isElementInViewport(id) && data) {
-                    if (data.torus) {
-                        data.torus.mesh.rotation.x += 0.002;
-                        data.torus.mesh.rotation.y += 0.003;
-                    }
-                    if (data.particles) {
-                        updateParticles(data.particles, 400);
-                    }
-                    data.renderer.render(data.scene, data.camera);
-                }
-            });
-        }
-        
-        function isElementInViewport(id) {
-            const el = document.getElementById(id);
-            if (!el) return false;
-            
-            const rect = el.getBoundingClientRect();
-            return (
-                rect.top <= window.innerHeight && 
-                rect.bottom >= 0
-            );
-        }
-        
-        function updateParticles(particles, bounds) {
-            if (!particles || !particles.geometry || !particles.velocities) return;
-            const positions = particles.geometry.attributes.position.array;
-            const velocities = particles.velocities;
-            
-            for (let i = 0; i < positions.length; i += 3) {
-                positions[i] += velocities[i];
-                positions[i + 1] += velocities[i + 1];
-                positions[i + 2] += velocities[i + 2];
-                
-                if (Math.abs(positions[i]) > bounds) velocities[i] *= -1;
-                if (Math.abs(positions[i + 1]) > bounds) velocities[i + 1] *= -1;
-                if (Math.abs(positions[i + 2]) > bounds) velocities[i + 2] *= -1;
+            function animate() {
+                requestAnimationFrame(animate);
+                torus.rotation.x += 0.002;
+                torus.rotation.y += 0.003;
+                particlesMesh.rotation.y += 0.001;
+                renderer.render(scene, camera);
             }
-            
-            particles.geometry.attributes.position.needsUpdate = true;
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
         }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                animate(0);
-            }, 100);
-        });
 
-        document.addEventListener('visibilitychange', () => {
-            isAnimating = !document.hidden;
-            if (isAnimating) {
-                animate(0);
-            } else {
-                if (animationFrameId) {
-                    cancelAnimationFrame(animationFrameId);
-                    animationFrameId = null;
-                }
-            }
-        });
+        // Create backgrounds for different sections
+        createBackground('three-canvas', 0xff0055);
+        createBackground('about-canvas', 0xff3333);
+        createBackground('gallery-canvas', 0xff5555);
+        createBackground('process-canvas', 0xff7777);
+        createBackground('contact-canvas', 0x5500ff);
 
-        const optimizedResize = perf.debounce(() => {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            
-            [heroSceneData, aboutSceneData, gallerySceneData, processSceneData, contactSceneData].forEach(data => {
-                if (data) {
-                    data.camera.aspect = width / height;
-                    data.camera.updateProjectionMatrix();
-                    data.renderer.setSize(width, height);
-                }
-            });
-        }, 150);
-
-        window.addEventListener('resize', optimizedResize);
-
-        // Initialize GSAP animations
-        gsap.registerPlugin(ScrollTrigger);
-
-        const animateOnScroll = (selector, props) => {
-            gsap.from(selector, {
-                ...props,
-                scrollTrigger: {
-                    trigger: selector,
-                    start: "top 85%",
-                    once: true
-                }
-            });
-        };
-
-        gsap.from("#hero h1", { opacity: 0, y: 50, duration: 1 });
-        gsap.from("#hero p", { opacity: 0, y: 50, duration: 1, delay: 0.2 });
-        gsap.from("#hero a", { opacity: 0, y: 50, duration: 1, delay: 0.4 });
-        
-        animateOnScroll("#about h2", { opacity: 0, y: 30, duration: 0.8 });
-        animateOnScroll("#about p", { opacity: 0, y: 30, duration: 0.8, delay: 0.2 });
-        animateOnScroll(".team-card", { opacity: 0, y: 50, duration: 0.8, stagger: 0.2 });
-        
-        animateOnScroll("#services h2", { opacity: 0, y: 30, duration: 0.8 });
-        animateOnScroll(".service-card", { opacity: 0, y: 50, duration: 0.8, stagger: 0.2 });
-        
-        animateOnScroll("#gallery h2", { opacity: 0, y: 30, duration: 0.8 });
-        animateOnScroll(".filter-btn", { opacity: 0, y: 30, duration: 0.8, stagger: 0.1 });
-        
-        animateOnScroll("#testimonials h2", { opacity: 0, y: 30, duration: 0.8 });
-        animateOnScroll(".testimonial-card", { opacity: 0, y: 50, duration: 0.8, stagger: 0.2 });
-        
-        animateOnScroll("#process h2", { opacity: 0, y: 30, duration: 0.8 });
-        animateOnScroll(".process-step", { opacity: 0, y: 50, duration: 0.8, stagger: 0.2 });
-        
-        animateOnScroll("#contact h2", { opacity: 0, y: 30, duration: 0.8 });
-        animateOnScroll("#getStartedBtn", { opacity: 0, y: 30, duration: 0.8, delay: 0.2 });
-
-        // Custom cursor with optimized performance
-        const cursor = document.getElementById('cursor');
-        if (cursor) {
-            document.addEventListener('mousemove', perf.throttle((e) => {
-                cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-            }, 16));
-        }
-        
-        document.querySelectorAll('a, button, .service-card, .team-card, .testimonial-card').forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                gsap.to(cursor, { scale: 1.5, opacity: 0.8, duration: 0.15 });
-            });
-            el.addEventListener('mouseleave', () => {
-                gsap.to(cursor, { scale: 1, opacity: 0.5, duration: 0.15 });
-            });
-        });
-
-        // Video carousel with optimized loading
+        // Video Data
         const videos = [
-            { src: '1.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/1-poster.jpg', title: 'Story Telling', category: 'Motion Graphics', preloaded: false },
-            { src: '3.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/3-poster.jpg', title: 'Dynamic Waves', category: 'Motion Graphics', preloaded: false },
-            { src: '7.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/4-poster.jpg', title: 'Our Agency', category: 'VFX', preloaded: false },
-            { src: '4.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/5-poster.jpg', title: 'Explosive Effects', category: 'VFX', preloaded: false },
-            { src: '6.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/6-poster.jpg', title: 'Digital Storm', category: 'VFX', preloaded: false },
-            { src: '10.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/7-poster.jpg', title: 'Advertisement', category: '3D Ads', preloaded: false },
-            { src: '8.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/8-poster.jpg', title: 'Product Shine', category: '3D Ads', preloaded: false },
-            { src: '9.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/9-poster.jpg', title: '3D Showcase', category: '3D Ads', preloaded: false }
+            { src: '1.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/1-poster.jpg', title: 'Story Telling', category: 'Motion Graphics' },
+            { src: '3.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/3-poster.jpg', title: 'Dynamic Waves', category: 'Motion Graphics' },
+            { src: '7.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/4-poster.jpg', title: 'Our Agency', category: 'VFX' },
+            { src: '4.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/5-poster.jpg', title: 'Explosive Effects', category: 'VFX' },
+            { src: '6.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/6-poster.jpg', title: 'Digital Storm', category: 'VFX' },
+            { src: '10.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/7-poster.jpg', title: 'Advertisement', category: '3D Ads' },
+            { src: '8.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/8-poster.jpg', title: 'Product Shine', category: '3D Ads' },
+            { src: '9.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/9-poster.jpg', title: '3D Showcase', category: '3D Ads' }
         ];
 
-        const carouselInner = document.getElementById('carousel-inner');
+        // Video Carousel
         let currentIndex = 0;
-        let filteredVideos = [];
-        let activeFilter = 'all';
-        let isNavigating = false;
-        
-        function preloadVideos(startIndex = 0, count = 3) {
-            const endIndex = Math.min(startIndex + count, filteredVideos.length);
-            for (let i = startIndex; i < endIndex; i++) {
-                const video = filteredVideos[i];
-                if (!video.preloaded) {
-                    const preloadLink = document.createElement('link');
-                    preloadLink.rel = 'preload';
-                    preloadLink.as = 'video';
-                    preloadLink.href = video.src;
-                    document.head.appendChild(preloadLink);
-                    video.preloaded = true;
-                }
-            }
-        }
-        
+        let filteredVideos = [...videos];
+
         function renderCarousel(filter = 'all') {
-            carouselInner.innerHTML = '';
-            activeFilter = filter;
-            filteredVideos = filter === 'all' ? [...videos] : videos.filter(v => v.category === filter);
+            const carouselInner = document.getElementById('carousel-inner');
+            const filterBtns = document.querySelectorAll('.filter-btn');
             
-            if (filteredVideos.length === 0) {
-                carouselInner.innerHTML = '<p class="text-center text-gray-500 w-full">No videos found for this category.</p>';
-                document.getElementById('prev-btn').style.display = 'none';
-                document.getElementById('next-btn').style.display = 'none';
-                return;
-            }
-
-            document.getElementById('prev-btn').style.display = 'block';
-            document.getElementById('next-btn').style.display = 'block';
-
-            preloadVideos(0, 3);
+            // Update active button
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+            
+            // Filter videos
+            filteredVideos = filter === 'all' ? videos : videos.filter(v => v.category === filter);
+            
+            // Clear and rebuild carousel
+            carouselInner.innerHTML = '';
             
             filteredVideos.forEach((video, index) => {
-                const card = document.createElement('div');
-                card.className = 'group w-full sm:w-80 md:w-96 flex-shrink-0 mx-2 cursor-pointer will-change-transform performance-optimized';
+                const videoCard = document.createElement('div');
+                videoCard.className = 'w-full sm:w-80 md:w-96 flex-shrink-0 px-2';
                 
-                card.innerHTML = `
-                    <div class="relative overflow-hidden rounded-lg aspect-video">
-                        <div class="video-container" data-index="${index}">
-                            <div class="video-placeholder bg-gradient-to-br from-gray-900 to-gray-800">
-                                <div class="video-loading"></div>
-                            </div>
-                            <video class="lazy" muted playsinline loop poster="${video.poster}" data-src="${video.src}" preload="none">
-                                Your browser does not support the video tag.
-                            </video>
+                videoCard.innerHTML = `
+                    <div class="video-container">
+                        <div class="video-placeholder">
+                            <div class="loading-spinner"></div>
+                            <p class="text-sm mt-2 text-gray-400">Loading...</p>
                         </div>
-                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <p class="text-white text-lg font-semibold">${video.title}</p>
+                        <video muted loop playsinline poster="${video.poster}">
+                            <source src="${video.src}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity duration-300 flex items-center justify-center">
+                            <p class="text-white text-lg font-semibold opacity-0 hover:opacity-100 transition-opacity">${video.title}</p>
                         </div>
                     </div>
                 `;
                 
-                carouselInner.appendChild(card);
+                carouselInner.appendChild(videoCard);
+                
+                // Handle video loading
+                const videoEl = videoCard.querySelector('video');
+                const placeholder = videoCard.querySelector('.video-placeholder');
+                
+                videoEl.addEventListener('loadeddata', () => {
+                    placeholder.style.display = 'none';
+                    videoEl.classList.add('fade-in');
+                    videoEl.style.opacity = '1';
+                });
+
+                videoEl.addEventListener('error', () => {
+                    placeholder.innerHTML = '<p class="text-red-500 text-center">Failed to load video</p>';
+                });
+
+                // Lazy load videos
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            videoEl.load();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                observer.observe(videoEl);
+
+                // Play/pause on hover
+                videoCard.addEventListener('mouseenter', () => {
+                    videoEl.play().catch(() => {});
+                });
+                videoCard.addEventListener('mouseleave', () => {
+                    videoEl.pause();
+                });
             });
             
             currentIndex = 0;
             updateCarouselPosition();
-            
-            const videoContainers = document.querySelectorAll('.video-container');
-            videoContainers.forEach(container => {
-                lazyVideoObserver.observe(container);
-                playPauseObserver.observe(container);
-            });
         }
-
-        const lazyVideoObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const videoContainer = entry.target;
-                    const video = videoContainer.querySelector('video.lazy');
-                    const placeholder = videoContainer.querySelector('.video-placeholder');
-                    
-                    if (video && !video.src) {
-                        video.src = video.dataset.src;
-                        video.load();
-                        
-                        video.addEventListener('canplay', () => {
-                            video.play().catch(e => console.log("Autoplay prevented:", e));
-                            gsap.to(placeholder, { 
-                                opacity: 0, 
-                                scale: 1.1,
-                                duration: 0.3, 
-                                ease: "power2.in",
-                                onComplete: () => placeholder.remove() 
-                            });
-                            gsap.to(video, {
-                                opacity: 1,
-                                scale: 1,
-                                duration: 0.5,
-                                ease: "power2.out"
-                            });
-                        }, { once: true });
-                        
-                        video.addEventListener('error', () => {
-                            console.error(`Failed to load video: ${video.dataset.src}`);
-                            if (placeholder) {
-                                placeholder.innerHTML = '<p class="text-red-500">Video failed to load</p>';
-                            }
-                        }, { once: true });
-                    }
-                    observer.unobserve(videoContainer);
-                }
-            });
-        }, { rootMargin: '100px', threshold: 0.1 });
-
-        const playPauseObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const video = entry.target.querySelector('video');
-                if (video) {
-                    if (entry.isIntersecting) {
-                        video.play().catch(e => console.log("Autoplay prevented:", e));
-                    } else {
-                        if (!video.paused) video.pause();
-                    }
-                }
-            });
-        }, { threshold: 0.5, root: document.getElementById('video-carousel') });
 
         function updateCarouselPosition() {
-            const firstItem = carouselInner.querySelector('.group');
-            if (!firstItem) return;
-            
-            const itemWidth = firstItem.offsetWidth + 16;
-            gsap.to(carouselInner, {
-                x: -currentIndex * itemWidth,
-                duration: 0.4,
-                ease: "power2.out"
-            });
+            const itemWidth = window.innerWidth < 640 ? window.innerWidth - 16 : 320;
+            const translateX = -currentIndex * itemWidth;
+            document.getElementById('carousel-inner').style.transform = `translateX(${translateX}px)`;
         }
 
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                if (isNavigating || filteredVideos.length <= 1) return;
-                isNavigating = true;
-                currentIndex = (currentIndex - 1 + filteredVideos.length) % filteredVideos.length;
+        // Navigation buttons
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
                 updateCarouselPosition();
-                setTimeout(() => { isNavigating = false; }, 400);
-            });
-        }
+            }
+        });
 
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                if (isNavigating || filteredVideos.length <= 1) return;
-                isNavigating = true;
-                currentIndex = (currentIndex + 1) % filteredVideos.length;
+        document.getElementById('next-btn').addEventListener('click', () => {
+            const maxIndex = Math.max(0, filteredVideos.length - Math.floor(window.innerWidth / 320));
+            if (currentIndex < maxIndex) {
+                currentIndex++;
                 updateCarouselPosition();
-                setTimeout(() => { isNavigating = false; }, 400);
-            });
-        }
+            }
+        });
 
-        let filterTimeout;
+        // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (btn.dataset.filter === activeFilter) return;
-                
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                clearTimeout(filterTimeout);
-                filterTimeout = setTimeout(() => {
-                    renderCarousel(btn.dataset.filter);
-                }, 150);
+                renderCarousel(btn.dataset.filter);
             });
         });
 
-        // Contact info toggle
-        const getStartedBtn = document.getElementById('getStartedBtn');
-        const contactInfo = document.getElementById('contactInfo');
-
-        if (getStartedBtn && contactInfo) {
-            getStartedBtn.addEventListener('click', () => {
-                contactInfo.classList.toggle('active');
-            });
-        }
-        
-        // Mobile menu functionality
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        // Mobile Menu
         const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const closeMenuBtn = document.getElementById('close-menu-btn');
+
+        mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.add('open'));
+        closeMenuBtn.addEventListener('click', () => mobileMenu.classList.remove('open'));
+        document.querySelectorAll('.nav-link-mobile').forEach(link => {
+            link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+        });
+
+        // Contact Info Toggle
+        document.getElementById('getStartedBtn').addEventListener('click', () => {
+            const contactInfo = document.getElementById('contactInfo');
+            contactInfo.classList.toggle('hidden');
+            if (!contactInfo.classList.contains('hidden')) {
+                contactInfo.classList.add('fade-in');
+            }
+        });
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
         
-        if (mobileMenuBtn && mobileMenu && closeMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.add('open');
+        gsap.from("#hero h1", { opacity: 0, y: 50, duration: 1, ease: "power3.out" });
+        gsap.from("#hero p", { opacity: 0, y: 30, duration: 1, delay: 0.3, ease: "power3.out" });
+        gsap.from("#hero a", { opacity: 0, y: 30, duration: 1, delay: 0.6, ease: "power3.out" });
+
+        // Scroll animations
+        gsap.utils.toArray('section').forEach(section => {
+            gsap.from(section.querySelectorAll('h2'), {
+                scrollTrigger: { trigger: section, start: "top 80%" },
+                opacity: 0, y: 30, duration: 0.8, ease: "power3.out"
             });
-            closeMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.remove('open');
-            });
-            // Close menu when a link is clicked
-            mobileMenu.querySelectorAll('.nav-link-mobile').forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenu.classList.remove('open');
-                });
-            });
-        }
+        });
 
         // Initialize carousel on load
-        document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('load', () => {
             renderCarousel();
+            updateCarouselPosition();
         });
+
+        // Handle window resize
+        window.addEventListener('resize', updateCarouselPosition);
     </script>
 </body>
 </html>
