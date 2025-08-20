@@ -4,43 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="DRIP.CGI - Premier AI-powered marketing agency specializing in hyper-realistic CGI ad videos, 3D motion graphics, and VFX.">
-    <meta name="keywords" content="DRIP.CGI, AI advertising, CGI, 3D motion graphics, VFX, marketing agency">
     <title>DRIP.CGI - AI-Powered Hyper-Realistic CGI Ad Experiences</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23ec4899'>D</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
         body { font-family: 'Inter', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #dc2626, #ec4899); border-radius: 4px; }
-        
-        .filter-btn.active { 
-            background: linear-gradient(to right, #dc2626, #ec4899); 
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
-        }
-        
-        .nav-link { position: relative; transition: color 0.3s ease; }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(to right, #dc2626, #ec4899);
-            transition: width 0.3s ease;
-        }
-        .nav-link:hover::after { width: 100%; }
+        .filter-btn.active { background: linear-gradient(to right, #dc2626, #ec4899); box-shadow: 0 0 15px rgba(236, 72, 153, 0.5); }
+        .mobile-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); transform: translateX(100%); transition: transform 0.3s; z-index: 60; }
+        .mobile-menu.open { transform: translateX(0); }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none; }
         
         /* Video Container Styles */
         .video-container {
@@ -59,326 +35,256 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0;
-            transition: opacity 0.5s ease;
         }
         
-        .video-placeholder {
+        .video-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, #1a1a1a, #222);
+            background: rgba(0,0,0,0.4);
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+        
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #dc2626, #ec4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+            transform: scale(1);
+        }
+        
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 50px rgba(236, 72, 153, 0.8);
+        }
+        
+        .play-button i {
+            font-size: 30px;
+            margin-left: 3px;
+        }
+        
+        .video-title {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-container:hover .video-overlay {
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .video-container:hover .video-title {
+            opacity: 1;
         }
         
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-top: 4px solid #ec4899;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #ec4899;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 10px;
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in forwards;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            pointer-events: none;
-        }
-        
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 60;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.86, 0, 0.07, 1);
-        }
-        
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-        
-        .team-card, .service-card, .testimonial-card {
-            transition: all 0.3s ease;
-            backface-visibility: hidden;
-        }
-        
-        .team-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(236, 72, 153, 0.3);
-        }
-        
-        .service-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(236, 72, 153, 0.2);
-        }
-        
-        .process-step::before {
-            content: '';
-            position: absolute;
-            left: 24px;
-            top: 48px;
-            height: calc(100% - 48px);
-            width: 2px;
-            background: linear-gradient(to bottom, #dc2626, #ec4899);
-        }
-        
-        @media (max-width: 768px) {
-            .process-step::before {
-                left: 20px;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Custom Cursor -->
-    <div id="cursor" class="fixed w-4 h-4 bg-pink-500 rounded-full pointer-events-none z-50 mix-blend-difference hidden md:block"></div>
-
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md py-4 px-4">
+    <nav class="fixed top-0 w-full bg-black/90 backdrop-blur z-50 p-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="#hero" class="text-2xl font-bold bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">DRIP.CGI</a>
-            
-            <!-- Desktop Menu -->
             <div class="hidden md:flex space-x-8">
-                <a href="#hero" class="nav-link text-lg hover:text-red-500 transition">Home</a>
-                <a href="#about" class="nav-link text-lg hover:text-red-500 transition">About</a>
-                <a href="#services" class="nav-link text-lg hover:text-red-500 transition">Services</a>
-                <a href="#gallery" class="nav-link text-lg hover:text-red-500 transition">Portfolio</a>
-                <a href="#contact" class="nav-link text-lg hover:text-red-500 transition">Contact</a>
+                <a href="#hero" class="hover:text-pink-500 transition">Home</a>
+                <a href="#about" class="hover:text-pink-500 transition">About</a>
+                <a href="#services" class="hover:text-pink-500 transition">Services</a>
+                <a href="#gallery" class="hover:text-pink-500 transition">Portfolio</a>
+                <a href="#contact" class="hover:text-pink-500 transition">Contact</a>
             </div>
-
-            <!-- Mobile Menu Toggle -->
-            <button id="mobile-menu-btn" class="md:hidden text-white text-2xl z-50">
-                <i class="fas fa-bars"></i>
-            </button>
+            <button id="mobile-menu-btn" class="md:hidden text-2xl"><i class="fas fa-bars"></i></button>
         </div>
     </nav>
-    
-    <!-- Mobile Menu Panel -->
-    <div id="mobile-menu" class="mobile-menu">
-        <button id="close-menu-btn" class="absolute top-6 right-6 text-white text-3xl">
-            <i class="fas fa-times"></i>
-        </button>
-        <nav class="flex flex-col items-center space-y-8 text-3xl font-bold">
-            <a href="#hero" class="nav-link-mobile hover:text-pink-500 transition">Home</a>
-            <a href="#about" class="nav-link-mobile hover:text-pink-500 transition">About</a>
-            <a href="#services" class="nav-link-mobile hover:text-pink-500 transition">Services</a>
-            <a href="#gallery" class="nav-link-mobile hover:text-pink-500 transition">Portfolio</a>
-            <a href="#contact" class="nav-link-mobile hover:text-pink-500 transition">Contact</a>
-        </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu flex flex-col items-center justify-center space-y-8 text-2xl">
+        <button id="close-menu-btn" class="absolute top-6 right-6 text-3xl"><i class="fas fa-times"></i></button>
+        <a href="#hero" class="hover:text-pink-500 transition">Home</a>
+        <a href="#about" class="hover:text-pink-500 transition">About</a>
+        <a href="#services" class="hover:text-pink-500 transition">Services</a>
+        <a href="#gallery" class="hover:text-pink-500 transition">Portfolio</a>
+        <a href="#contact" class="hover:text-pink-500 transition">Contact</a>
     </div>
 
-    <!-- Hero Section -->
-    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
-        <canvas id="three-canvas" class="absolute inset-0"></canvas>
-        <div class="relative z-10 text-center px-4">
-            <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500 mb-6">DRIP.CGI</h1>
-            <p class="text-xl md:text-3xl mb-8 opacity-90 max-w-3xl mx-auto leading-relaxed">Transforming Brands with AI-Powered Hyper-Realistic CGI and Immersive Visual Storytelling</p>
-            <a href="#gallery" class="inline-block bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-4 px-12 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/50">Explore Portfolio</a>
+    <!-- Hero -->
+    <section id="hero" class="h-screen flex items-center justify-center relative">
+        <canvas id="three-canvas"></canvas>
+        <div class="text-center z-10">
+            <h1 class="text-6xl md:text-8xl font-bold bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent mb-4">DRIP.CGI</h1>
+            <p class="text-xl md:text-3xl mb-8 opacity-90 max-w-3xl mx-auto">Transforming Brands with AI-Powered Hyper-Realistic CGI</p>
+            <a href="#gallery" class="bg-gradient-to-r from-red-600 to-pink-600 px-8 py-3 rounded-full hover:scale-105 transition">Explore Portfolio</a>
         </div>
     </section>
 
     <!-- About Section -->
-    <section id="about" class="py-20 px-4 relative">
-        <canvas id="about-canvas" class="absolute inset-0 z-[-1]"></canvas>
+    <section id="about" class="py-20 px-4">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">About DRIP.CGI</h2>
-            <p class="text-xl text-center max-w-4xl mx-auto mb-16 opacity-90 leading-relaxed">We are a cutting-edge marketing agency specializing in AI-powered CGI, VFX, and 3D motion graphics. Our team combines creativity with advanced technology to deliver stunning visual experiences that captivate audiences and elevate brands.</p>
+            <h2 class="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">About DRIP.CGI</h2>
+            <p class="text-xl text-center max-w-4xl mx-auto mb-16">We are a cutting-edge marketing agency specializing in AI-powered CGI, VFX, and 3D motion graphics.</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="team-card relative overflow-hidden rounded-lg h-80 bg-gray-900">
-                    <img src="me.png" alt="Team Member Ahsan Javed" class="w-full h-full object-cover" loading="lazy">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6">
-                        <h3 class="text-2xl font-semibold mb-1">Ahsan Javed</h3>
-                        <p class="text-gray-300">Creative Director</p>
-                    </div>
+                <div class="bg-gray-900 p-6 rounded-lg">
+                    <img src="me.png" alt="Ahsan Javed" class="w-full h-64 object-cover rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold">Ahsan Javed</h3>
+                    <p class="text-gray-400">Creative Director</p>
                 </div>
-                <div class="team-card relative overflow-hidden rounded-lg h-80 bg-gray-900">
-                    <img src="VFX.png" alt="Team Member M.Hamza" class="w-full h-full object-cover" loading="lazy">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6">
-                        <h3 class="text-2xl font-semibold mb-1">M.Hamza</h3>
-                        <p class="text-gray-300">Lead VFX Artist</p>
-                    </div>
+                <div class="bg-gray-900 p-6 rounded-lg">
+                    <img src="VFX.png" alt="M.Hamza" class="w-full h-64 object-cover rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold">M.Hamza</h3>
+                    <p class="text-gray-400">Lead VFX Artist</p>
                 </div>
-                <div class="team-card relative overflow-hidden rounded-lg h-80 bg-gray-900">
-                    <img src="ai.png" alt="Team Member Ahmed Khan" class="w-full h-full object-cover" loading="lazy">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6">
-                        <h3 class="text-2xl font-semibold mb-1">Ahmed Khan</h3>
-                        <p class="text-gray-300">AI Specialist</p>
-                    </div>
+                <div class="bg-gray-900 p-6 rounded-lg">
+                    <img src="ai.png" alt="Ahmed Khan" class="w-full h-64 object-cover rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold">Ahmed Khan</h3>
+                    <p class="text-gray-400">AI Specialist</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Services Section -->
-    <section id="services" class="py-20 px-4 relative bg-gray-900">
+    <!-- Services -->
+    <section id="services" class="py-20 px-4 bg-gray-900">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Our Services</h2>
+            <h2 class="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">Our Services</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="service-card bg-gray-800 p-8 rounded-xl hover:bg-gray-750">
+                <div class="bg-gray-800 p-8 rounded-xl">
                     <i class="fas fa-video text-5xl text-pink-500 mb-6"></i>
                     <h3 class="text-2xl font-semibold mb-4">AI-Powered CGI Ads</h3>
-                    <p class="text-gray-300 leading-relaxed">Create hyper-realistic advertisements using AI, delivering unparalleled visual quality and engagement.</p>
+                    <p class="text-gray-300">Create hyper-realistic advertisements using AI</p>
                 </div>
-                <div class="service-card bg-gray-800 p-8 rounded-xl hover:bg-gray-750">
+                <div class="bg-gray-800 p-8 rounded-xl">
                     <i class="fas fa-film text-5xl text-pink-500 mb-6"></i>
                     <h3 class="text-2xl font-semibold mb-4">VFX & Motion Graphics</h3>
-                    <p class="text-gray-300 leading-relaxed">Transform your vision with stunning visual effects and dynamic motion graphics that captivate your audience.</p>
+                    <p class="text-gray-300">Transform your vision with stunning visual effects</p>
                 </div>
-                <div class="service-card bg-gray-800 p-8 rounded-xl hover:bg-gray-750">
+                <div class="bg-gray-800 p-8 rounded-xl">
                     <i class="fas fa-robot text-5xl text-pink-500 mb-6"></i>
                     <h3 class="text-2xl font-semibold mb-4">AI Content Strategy</h3>
-                    <p class="text-gray-300 leading-relaxed">Leverage AI-driven insights to craft compelling content strategies that resonate with your target audience.</p>
+                    <p class="text-gray-300">Leverage AI-driven insights for your content</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Portfolio/Gallery Section -->
-    <section id="gallery" class="py-20 px-4 relative">
-        <canvas id="gallery-canvas" class="absolute inset-0 z-[-1]"></canvas>
+    <!-- Portfolio -->
+    <section id="gallery" class="py-20 px-4">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Our Portfolio</h2>
-            
-            <!-- Filter Buttons -->
+            <h2 class="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">Our Portfolio</h2>
             <div class="flex justify-center mb-8 space-x-2 flex-wrap">
-                <button class="filter-btn active bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 m-1" data-filter="all">All</button>
-                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 m-1" data-filter="Motion Graphics">Motion Graphics</button>
-                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 m-1" data-filter="VFX">VFX</button>
-                <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-white py-2 px-6 rounded-full transition-all duration-300 m-1" data-filter="3D Ads">3D Ads</button>
+                <button class="filter-btn active bg-gray-800 px-4 py-2 rounded-full m-1" data-filter="all">All</button>
+                <button class="filter-btn bg-gray-800 px-4 py-2 rounded-full m-1" data-filter="Motion Graphics">Motion Graphics</button>
+                <button class="filter-btn bg-gray-800 px-4 py-2 rounded-full m-1" data-filter="VFX">VFX</button>
+                <button class="filter-btn bg-gray-800 px-4 py-2 rounded-full m-1" data-filter="3D Ads">3D Ads</button>
             </div>
-            
-            <!-- Video Carousel -->
-            <div id="video-carousel" class="relative max-w-6xl mx-auto overflow-hidden">
-                <div id="carousel-inner" class="flex transition-transform duration-500 ease-out"></div>
-                
-                <!-- Navigation Buttons -->
-                <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-900/80 hover:bg-gray-700 p-3 rounded-full z-10 transition-colors duration-300 ml-2">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-900/80 hover:bg-gray-700 p-3 rounded-full z-10 transition-colors duration-300 mr-2">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+            <div id="video-carousel" class="relative">
+                <div id="carousel-inner" class="flex transition-transform duration-500"></div>
+                <button id="prev-btn" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 p-2 rounded-full z-10"><i class="fas fa-chevron-left"></i></button>
+                <button id="next-btn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 p-2 rounded-full z-10"><i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="py-20 px-4 relative bg-gray-900">
+    <!-- Testimonials -->
+    <section id="testimonials" class="py-20 px-4 bg-gray-900">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">What Our Clients Say</h2>
+            <h2 class="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">What Our Clients Say</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="testimonial-card bg-gray-800 p-8 rounded-xl">
-                    <p class="text-gray-300 mb-6 italic text-lg">"DRIP.CGI transformed our brand with their strategy. The results were beyond our expectations!"</p>
-                    <p class="font-semibold text-xl">M.Uzair</p>
+                <div class="bg-gray-800 p-8 rounded-xl">
+                    <p class="text-gray-300 mb-4 italic">"DRIP.CGI transformed our brand with their strategy. The results were beyond our expectations!"</p>
+                    <p class="font-semibold">M.Uzair</p>
                     <p class="text-gray-400">Marketing Director, TechTrend</p>
                 </div>
-                <div class="testimonial-card bg-gray-800 p-8 rounded-xl">
-                    <p class="text-gray-300 mb-6 italic text-lg">"Their VFX work is unparalleled. Our campaign went viral thanks to their creativity."</p>
-                    <p class="font-semibold text-xl">Danish Chand</p>
+                <div class="bg-gray-800 p-8 rounded-xl">
+                    <p class="text-gray-300 mb-4 italic">"Their VFX work is unparalleled. Our campaign went viral thanks to their creativity."</p>
+                    <p class="font-semibold">Danish Chand</p>
                     <p class="text-gray-400">CEO, Visionary Brands</p>
                 </div>
-                <div class="testimonial-card bg-gray-800 p-8 rounded-xl">
-                    <p class="text-gray-300 mb-6 italic text-lg">"The AI-driven content strategy from DRIP.CGI doubled our engagement rates."</p>
-                    <p class="font-semibold text-xl">Bushra</p>
+                <div class="bg-gray-800 p-8 rounded-xl">
+                    <p class="text-gray-300 mb-4 italic">"The AI-driven content strategy from DRIP.CGI doubled our engagement rates."</p>
+                    <p class="font-semibold">Bushra</p>
                     <p class="text-gray-400">Marketing Manager, Innovate Co.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Process Section -->
-    <section id="process" class="py-20 px-4 relative">
-        <canvas id="process-canvas" class="absolute inset-0 z-[-1]"></canvas>
+    <!-- Process -->
+    <section id="process" class="py-20 px-4">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Our Creative Process</h2>
+            <h2 class="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">Our Creative Process</h2>
             <div class="space-y-12 max-w-4xl mx-auto">
-                <div class="process-step relative pl-16">
+                <div class="relative pl-16">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold">1</div>
                         <h3 class="ml-6 text-2xl font-semibold">Discovery & Planning</h3>
                     </div>
-                    <p class="text-gray-300 ml-18">We collaborate with you to understand your brand, goals, and audience to create a tailored strategy.</p>
+                    <p class="text-gray-300 ml-18">We collaborate with you to understand your brand and goals</p>
                 </div>
-                <div class="process-step relative pl-16">
+                <div class="relative pl-16">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold">2</div>
                         <h3 class="ml-6 text-2xl font-semibold">Concept & Storyboarding</h3>
                     </div>
-                    <p class="text-gray-300 ml-18">Our team develops creative concepts and detailed storyboards to visualize the final product.</p>
+                    <p class="text-gray-300 ml-18">Our team develops creative concepts and detailed storyboards</p>
                 </div>
-                <div class="process-step relative pl-16">
+                <div class="relative pl-16">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold">3</div>
                         <h3 class="ml-6 text-2xl font-semibold">Production & Rendering</h3>
                     </div>
-                    <p class="text-gray-300 ml-18">Using AI and advanced tools, we create hyper-realistic CGI and VFX that bring your vision to life.</p>
+                    <p class="text-gray-300 ml-18">We create hyper-realistic CGI and VFX using AI and advanced tools</p>
                 </div>
-                <div class="process-step relative pl-16">
+                <div class="relative pl-16">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold">4</div>
                         <h3 class="ml-6 text-2xl font-semibold">Delivery & Optimization</h3>
                     </div>
-                    <p class="text-gray-300 ml-18">We deliver the final assets and optimize them for maximum impact across all platforms.</p>
+                    <p class="text-gray-300 ml-18">We deliver final assets optimized for maximum impact</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 px-4 relative">
-        <canvas id="contact-canvas" class="absolute inset-0 z-[-1]"></canvas>
+    <!-- Contact -->
+    <section id="contact" class="py-20 px-4">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-5xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-pink-500">Connect with Us</h2>
-            <p class="text-xl mb-8 opacity-90">Ready to transform your brand? Let's create something extraordinary together.</p>
-            <button id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-4 px-12 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/50">Get Started</button>
+            <h2 class="text-5xl font-bold mb-8 bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">Connect with Us</h2>
+            <p class="text-xl mb-8">Ready to transform your brand? Let's create something extraordinary together.</p>
+            <button id="getStartedBtn" class="bg-gradient-to-r from-red-600 to-pink-600 px-8 py-3 rounded-full hover:scale-105 transition">Get Started</button>
             <div id="contactInfo" class="mt-8 space-y-4 hidden">
-                <div class="flex justify-center items-center space-x-4">
-                    <i class="fab fa-instagram text-3xl text-pink-500"></i>
-                    <a href="https://instagram.com/drip.cgii" target="_blank" class="text-pink-400 hover:text-pink-300 transition text-xl">@drip.cgi</a>
-                </div>
-                <div class="flex justify-center items-center space-x-4">
-                    <i class="fas fa-envelope text-3xl text-green-500"></i>
-                    <a href="mailto:beingahsan12@gmail.com" class="text-blue-400 hover:text-blue-300 transition text-xl">beingahsan12@gmail.com</a>
-                </div>
+                <div class="flex justify-center items-center space-x-4"><i class="fab fa-instagram text-3xl text-pink-500"></i><a href="https://instagram.com/drip.cgii" class="text-pink-400">@drip.cgi</a></div>
+                <div class="flex justify-center items-center space-x-4"><i class="fas fa-envelope text-3xl text-green-500"></i><a href="mailto:beingahsan12@gmail.com" class="text-blue-400">beingahsan12@gmail.com</a></div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="bg-gray-900 py-12 px-4">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
                 <h3 class="text-2xl font-bold bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent mb-4">DRIP.CGI</h3>
                 <p class="text-gray-300">Crafting the future of advertising with AI-powered CGI and VFX.</p>
@@ -389,13 +295,12 @@
                     <li><a href="#about" class="text-gray-300 hover:text-pink-500 transition">About Us</a></li>
                     <li><a href="#services" class="text-gray-300 hover:text-pink-500 transition">Services</a></li>
                     <li><a href="#gallery" class="text-gray-300 hover:text-pink-500 transition">Portfolio</a></li>
-                    <li><a href="#contact" class="text-gray-300 hover:text-pink-500 transition">Contact</a></li>
                 </ul>
             </div>
             <div>
                 <h3 class="text-xl font-semibold mb-4">Connect</h3>
                 <ul class="space-y-2">
-                    <li><a href="https://instagram.com/drip.cgii" target="_blank" class="text-gray-300 hover:text-pink-500 transition">Instagram</a></li>
+                    <li><a href="https://instagram.com/drip.cgii" class="text-gray-300 hover:text-pink-500 transition">Instagram</a></li>
                     <li><a href="mailto:beingahsan12@gmail.com" class="text-gray-300 hover:text-pink-500 transition">Email</a></li>
                 </ul>
             </div>
@@ -406,82 +311,32 @@
     </footer>
 
     <script>
-        // Custom Cursor
-        const cursor = document.getElementById('cursor');
-        if (cursor && window.innerWidth > 768) {
-            document.addEventListener('mousemove', (e) => {
-                gsap.to(cursor, {
-                    x: e.clientX - 8,
-                    y: e.clientY - 8,
-                    duration: 0.1
-                });
-            });
-
-            document.querySelectorAll('a, button, .service-card, .team-card').forEach(el => {
-                el.addEventListener('mouseenter', () => {
-                    gsap.to(cursor, { scale: 1.5, duration: 0.2 });
-                });
-                el.addEventListener('mouseleave', () => {
-                    gsap.to(cursor, { scale: 1, duration: 0.2 });
-                });
-            });
-        }
-
-        // Smooth scroll for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-
-        // Three.js Backgrounds
+        // Three.js Background
         function createBackground(canvasId, color) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
-
-            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
-
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.z = 150;
-
-            // Particles
-            const particlesGeometry = new THREE.BufferGeometry();
-            const particlesCount = 600;
-            const posArray = new Float32Array(particlesCount * 3);
             
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 500;
+            const posArray = new Float32Array(particlesCount * 3);
             for (let i = 0; i < particlesCount * 3; i++) {
                 posArray[i] = (Math.random() - 0.5) * 500;
             }
-            
             particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const particlesMaterial = new THREE.PointsMaterial({
-                size: 1.5,
-                color: color,
-                transparent: true,
-                opacity: 0.6,
-                blending: THREE.AdditiveBlending
-            });
+            const particlesMaterial = new THREE.PointsMaterial({ size: 1.5, color, transparent: true, opacity: 0.6 });
             const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
             scene.add(particlesMesh);
-
-            // Torus
+            
             const torusGeometry = new THREE.TorusGeometry(25, 4, 16, 100);
-            const torusMaterial = new THREE.MeshBasicMaterial({
-                color: color,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.3
-            });
+            const torusMaterial = new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity: 0.3 });
             const torus = new THREE.Mesh(torusGeometry, torusMaterial);
             scene.add(torus);
-
+            
             function animate() {
                 requestAnimationFrame(animate);
                 torus.rotation.x += 0.002;
@@ -490,20 +345,9 @@
                 renderer.render(scene, camera);
             }
             animate();
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
         }
 
-        // Create backgrounds for different sections
         createBackground('three-canvas', 0xff0055);
-        createBackground('about-canvas', 0xff3333);
-        createBackground('gallery-canvas', 0xff5555);
-        createBackground('process-canvas', 0xff7777);
-        createBackground('contact-canvas', 0x5500ff);
 
         // Video Data
         const videos = [
@@ -517,7 +361,7 @@
             { src: '9.mp4', poster: 'https://cdn.glitch.global/c34e06c1-a2cb-4654-8c88-b39f3739a8c1/9-poster.jpg', title: '3D Showcase', category: '3D Ads' }
         ];
 
-        // Video Carousel
+        // Video Carousel with Play Buttons
         let currentIndex = 0;
         let filteredVideos = [...videos];
 
@@ -525,50 +369,72 @@
             const carouselInner = document.getElementById('carousel-inner');
             const filterBtns = document.querySelectorAll('.filter-btn');
             
-            // Update active button
             filterBtns.forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+            document.querySelector(`[data-filter="${filter}"]`)?.classList.add('active');
             
-            // Filter videos
             filteredVideos = filter === 'all' ? videos : videos.filter(v => v.category === filter);
-            
-            // Clear and rebuild carousel
             carouselInner.innerHTML = '';
-            
+
             filteredVideos.forEach((video, index) => {
                 const videoCard = document.createElement('div');
                 videoCard.className = 'w-full sm:w-80 md:w-96 flex-shrink-0 px-2';
                 
                 videoCard.innerHTML = `
                     <div class="video-container">
-                        <div class="video-placeholder">
-                            <div class="loading-spinner"></div>
-                            <p class="text-sm mt-2 text-gray-400">Loading...</p>
-                        </div>
                         <video muted loop playsinline poster="${video.poster}">
                             <source src="${video.src}" type="video/mp4">
-                            Your browser does not support the video tag.
                         </video>
-                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity duration-300 flex items-center justify-center">
-                            <p class="text-white text-lg font-semibold opacity-0 hover:opacity-100 transition-opacity">${video.title}</p>
+                        <div class="video-overlay">
+                            <div class="play-button">
+                                <i class="fas fa-play text-white"></i>
+                            </div>
                         </div>
+                        <div class="video-title">${video.title}</div>
                     </div>
                 `;
                 
                 carouselInner.appendChild(videoCard);
                 
-                // Handle video loading
+                // Handle video loading and play
                 const videoEl = videoCard.querySelector('video');
-                const placeholder = videoCard.querySelector('.video-placeholder');
+                const overlay = videoCard.querySelector('.video-overlay');
+                const playBtn = videoCard.querySelector('.play-button');
                 
-                videoEl.addEventListener('loadeddata', () => {
-                    placeholder.style.display = 'none';
-                    videoEl.classList.add('fade-in');
-                    videoEl.style.opacity = '1';
+                // Auto-play on desktop hover
+                if (window.innerWidth > 768) {
+                    videoCard.addEventListener('mouseenter', () => {
+                        videoEl.play().catch(() => {});
+                        overlay.style.opacity = '0';
+                        playBtn.style.transform = 'scale(0.8)';
+                    });
+                    
+                    videoCard.addEventListener('mouseleave', () => {
+                        videoEl.pause();
+                        overlay.style.opacity = '1';
+                        playBtn.style.transform = 'scale(1)';
+                    });
+                }
+                
+                // Click to play/pause for mobile
+                playBtn.addEventListener('click', () => {
+                    if (videoEl.paused) {
+                        videoEl.play();
+                        overlay.style.opacity = '0';
+                        playBtn.style.transform = 'scale(0.8)';
+                        playBtn.innerHTML = '<i class="fas fa-pause text-white"></i>';
+                    } else {
+                        videoEl.pause();
+                        overlay.style.opacity = '1';
+                        playBtn.style.transform = 'scale(1)';
+                        playBtn.innerHTML = '<i class="fas fa-play text-white"></i>';
+                    }
                 });
 
-                videoEl.addEventListener('error', () => {
-                    placeholder.innerHTML = '<p class="text-red-500 text-center">Failed to load video</p>';
+                // Handle video end
+                videoEl.addEventListener('ended', () => {
+                    overlay.style.opacity = '1';
+                    playBtn.style.transform = 'scale(1)';
+                    playBtn.innerHTML = '<i class="fas fa-play text-white"></i>';
                 });
 
                 // Lazy load videos
@@ -579,16 +445,8 @@
                             observer.unobserve(entry.target);
                         }
                     });
-                }, { threshold: 0.1 });
+                });
                 observer.observe(videoEl);
-
-                // Play/pause on hover
-                videoCard.addEventListener('mouseenter', () => {
-                    videoEl.play().catch(() => {});
-                });
-                videoCard.addEventListener('mouseleave', () => {
-                    videoEl.pause();
-                });
             });
             
             currentIndex = 0;
@@ -639,32 +497,11 @@
         document.getElementById('getStartedBtn').addEventListener('click', () => {
             const contactInfo = document.getElementById('contactInfo');
             contactInfo.classList.toggle('hidden');
-            if (!contactInfo.classList.contains('hidden')) {
-                contactInfo.classList.add('fade-in');
-            }
         });
 
-        // GSAP Animations
-        gsap.registerPlugin(ScrollTrigger);
+        // Initialize
+        renderCarousel();
         
-        gsap.from("#hero h1", { opacity: 0, y: 50, duration: 1, ease: "power3.out" });
-        gsap.from("#hero p", { opacity: 0, y: 30, duration: 1, delay: 0.3, ease: "power3.out" });
-        gsap.from("#hero a", { opacity: 0, y: 30, duration: 1, delay: 0.6, ease: "power3.out" });
-
-        // Scroll animations
-        gsap.utils.toArray('section').forEach(section => {
-            gsap.from(section.querySelectorAll('h2'), {
-                scrollTrigger: { trigger: section, start: "top 80%" },
-                opacity: 0, y: 30, duration: 0.8, ease: "power3.out"
-            });
-        });
-
-        // Initialize carousel on load
-        window.addEventListener('load', () => {
-            renderCarousel();
-            updateCarouselPosition();
-        });
-
         // Handle window resize
         window.addEventListener('resize', updateCarouselPosition);
     </script>
